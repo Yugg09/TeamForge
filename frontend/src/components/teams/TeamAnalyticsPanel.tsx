@@ -1,17 +1,15 @@
 import { useMemo } from "react";
 import type { Participant, Team } from "@/api/types";
+import { WhyThisTeamPanel } from "@/components/explanation/WhyThisTeamPanel";
+import { useProjectRequirements } from "@/api/use-projects";
 import { ScoreBreakdown } from "@/components/teams/ScoreBreakdown";
 import { SkillCoverageChart } from "@/components/teams/SkillCoverageChart";
 import { SkillGapSection } from "@/components/teams/SkillGapSection";
 import { SkillGapVisualization } from "@/components/teams/SkillGapVisualization";
 import { TeamCompositionBreakdown } from "@/components/teams/TeamCompositionBreakdown";
-import {
-  TeamExplanation,
-  TeamStrengthsWeaknesses,
-} from "@/components/teams/TeamExplanation";
 import { TeamMemberContributions } from "@/components/teams/TeamMemberContributions";
 import { TeamScoreHero } from "@/components/teams/TeamScoreHero";
-import { buildTeamInsights } from "@/lib/team-explain";
+import { buildTeamWhyContext } from "@/lib/team-why";
 
 type TeamAnalyticsPanelProps = {
   team: Team;
@@ -26,10 +24,16 @@ export function TeamAnalyticsPanel({
   fairnessOk,
   heroLabel = "Team analytics",
 }: TeamAnalyticsPanelProps) {
-  const insights = useMemo(() => {
+  const { data: projectRequirements } = useProjectRequirements();
+
+  const whyContext = useMemo(() => {
     if (!team.score) return null;
-    return buildTeamInsights(team.score);
-  }, [team.score]);
+    return buildTeamWhyContext(
+      team,
+      participants,
+      projectRequirements ?? undefined,
+    );
+  }, [team, participants, projectRequirements]);
 
   const score = team.score;
 
@@ -49,6 +53,8 @@ export function TeamAnalyticsPanel({
         heroLabel={heroLabel}
       />
 
+      {whyContext ? <WhyThisTeamPanel context={whyContext} /> : null}
+
       <div className="grid gap-6 lg:grid-cols-2">
         <SkillCoverageChart team={team} />
         <SkillGapVisualization team={team} />
@@ -60,13 +66,6 @@ export function TeamAnalyticsPanel({
         <ScoreBreakdown score={score} />
         <SkillGapSection score={score} />
       </div>
-
-      {insights ? (
-        <>
-          <TeamStrengthsWeaknesses insights={insights} />
-          <TeamExplanation insights={insights} />
-        </>
-      ) : null}
 
       <TeamMemberContributions team={team} participants={participants} />
     </div>
