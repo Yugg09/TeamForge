@@ -2,6 +2,7 @@ import { useState, type FormEvent } from "react";
 import { Loader2 } from "lucide-react";
 import { ApiError } from "@/api/client";
 import { useCreateParticipant } from "@/api/useParticipants";
+import { Button } from "@/components/ui/button";
 import { AvailabilityEditor } from "@/components/participants/AvailabilityEditor";
 import { InterestsInput } from "@/components/participants/InterestsInput";
 import { RoleCheckboxGroup } from "@/components/participants/RoleCheckboxGroup";
@@ -210,11 +211,7 @@ export function ParticipantProfileForm({ onSuccess }: ParticipantProfileFormProp
       ) : null}
 
       <div className="flex justify-end">
-        <button
-          type="submit"
-          disabled={createParticipant.isPending}
-          className="inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-sm transition hover:opacity-95 disabled:opacity-60"
-        >
+        <Button type="submit" size="lg" disabled={createParticipant.isPending}>
           {createParticipant.isPending ? (
             <>
               <Loader2 className="size-4 animate-spin" aria-hidden />
@@ -223,7 +220,7 @@ export function ParticipantProfileForm({ onSuccess }: ParticipantProfileFormProp
           ) : (
             "Add participant"
           )}
-        </button>
+        </Button>
       </div>
     </form>
   );

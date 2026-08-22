@@ -17,7 +17,7 @@ export function FeatureCard({
   return (
     <article
       className={cn(
-        "rounded-xl border border-border bg-card p-5 shadow-sm transition-shadow hover:shadow-md",
+        "rounded-2xl border border-border/80 bg-card p-6 shadow-sm transition-shadow hover:shadow-md",
         className,
       )}
     >

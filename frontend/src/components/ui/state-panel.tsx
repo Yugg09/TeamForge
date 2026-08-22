@@ -17,13 +17,15 @@ export function LoadingState({
   return (
     <div
       className={cn(
-        "flex flex-col items-center justify-center gap-3 rounded-xl border border-border bg-card p-10 text-center",
+        "flex flex-col items-center justify-center gap-3 rounded-xl border border-border/80 bg-card p-12 text-center shadow-sm",
         className,
       )}
     >
-      <Loader2 className="size-8 animate-spin text-primary" aria-hidden />
+      <div className="flex size-11 items-center justify-center rounded-full bg-primary/10">
+        <Loader2 className="size-5 animate-spin text-primary" aria-hidden />
+      </div>
       <div className="space-y-1">
-        <p className="font-medium">{title}</p>
+        <p className="font-semibold">{title}</p>
         {description ? (
           <p className="text-sm text-muted-foreground">{description}</p>
         ) : null}
@@ -41,18 +43,20 @@ export function EmptyState({
   return (
     <div
       className={cn(
-        "flex flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-border bg-muted/30 p-10 text-center",
+        "flex flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-border bg-card/60 p-12 text-center",
         className,
       )}
     >
-      <Inbox className="size-8 text-muted-foreground" aria-hidden />
+      <div className="flex size-11 items-center justify-center rounded-full bg-muted">
+        <Inbox className="size-5 text-muted-foreground" aria-hidden />
+      </div>
       <div className="space-y-1">
-        <p className="font-medium">{title}</p>
+        <p className="font-semibold">{title}</p>
         {description ? (
-          <p className="text-sm text-muted-foreground">{description}</p>
+          <p className="max-w-md text-sm text-muted-foreground">{description}</p>
         ) : null}
       </div>
-      {children}
+      {children ? <div className="mt-1">{children}</div> : null}
     </div>
   );
 }
@@ -66,18 +70,20 @@ export function ErrorState({
   return (
     <div
       className={cn(
-        "flex flex-col items-center justify-center gap-3 rounded-xl border border-destructive/30 bg-destructive/5 p-10 text-center",
+        "flex flex-col items-center justify-center gap-3 rounded-xl border border-destructive/20 bg-destructive/5 p-12 text-center",
         className,
       )}
     >
-      <AlertCircle className="size-8 text-destructive" aria-hidden />
+      <div className="flex size-11 items-center justify-center rounded-full bg-destructive/10">
+        <AlertCircle className="size-5 text-destructive" aria-hidden />
+      </div>
       <div className="space-y-1">
-        <p className="font-medium">{title}</p>
+        <p className="font-semibold">{title}</p>
         {description ? (
-          <p className="text-sm text-muted-foreground">{description}</p>
+          <p className="max-w-md text-sm text-muted-foreground">{description}</p>
         ) : null}
       </div>
-      {children}
+      {children ? <div className="mt-1">{children}</div> : null}
     </div>
   );
 }
@@ -94,7 +100,7 @@ export function LoadingSkeleton({
   return (
     <div
       className={cn(
-        "rounded-xl border border-border bg-card p-6 shadow-sm",
+        "rounded-xl border border-border/80 bg-card p-6 shadow-sm",
         className,
       )}
     >
@@ -103,8 +109,8 @@ export function LoadingSkeleton({
         {Array.from({ length: rows }).map((_, index) => (
           <div
             key={index}
-            className="h-10 animate-pulse rounded-lg bg-muted"
-            style={{ width: `${88 - index * 8}%` }}
+            className="h-11 animate-pulse rounded-lg bg-muted"
+            style={{ width: `${92 - index * 7}%` }}
           />
         ))}
       </div>

@@ -7,7 +7,7 @@ type ParticipantListProps = {
 
 export function ParticipantList({ participants }: ParticipantListProps) {
   return (
-    <ul className="space-y-3">
+    <ul className="grid gap-3">
       {participants.map((participant) => (
         <li key={participant.id}>
           <CandidateCard participant={participant} variant="compact" />

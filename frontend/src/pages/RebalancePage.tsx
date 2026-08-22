@@ -1,6 +1,7 @@
 import { useParams, Link } from "react-router-dom";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Rebalancer } from "@/components/teams/Rebalancer";
+import { Button, buttonVariants } from "@/components/ui/button";
 import {
   EmptyState,
   ErrorState,
@@ -30,7 +31,7 @@ export function RebalancePage() {
         actions={
           <Link
             to={id ? `/teams/${id}` : "/teams"}
-            className="text-sm font-medium text-primary underline-offset-4 hover:underline"
+            className={buttonVariants({ variant: "link", size: "sm" })}
           >
             Back to team
           </Link>
@@ -44,14 +45,12 @@ export function RebalancePage() {
           title="No team to rebalance"
           description="Form teams first, then open the rebalancer for a team."
         >
-          <button
-            type="button"
+          <Button
             onClick={() => formTeamsMutation.mutate({ event_id: "demo" })}
-            className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground"
           >
             <Sparkles className="size-4" aria-hidden />
             Form teams
-          </button>
+          </Button>
         </EmptyState>
       ) : participantsLoading ? (
         <LoadingSkeleton title="Loading cohort" rows={3} />

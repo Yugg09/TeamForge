@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils";
 
 const inputClassName =
-  "flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-xs transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50";
+  "flex h-10 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm shadow-xs transition-colors placeholder:text-muted-foreground hover:border-ring/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:border-ring disabled:cursor-not-allowed disabled:opacity-50";
 
 type TextInputProps = {
   id?: string;
@@ -68,7 +68,7 @@ export function TextArea({
       disabled={disabled}
       className={cn(
         inputClassName,
-        "min-h-[100px] resize-y py-2 leading-relaxed",
+        "min-h-[108px] resize-y py-2.5 leading-relaxed",
       )}
     />
   );

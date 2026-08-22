@@ -61,7 +61,7 @@ export function CandidateCard({
   return (
     <article
       className={cn(
-        "rounded-xl border border-border bg-card shadow-sm transition hover:shadow-md",
+        "rounded-xl border border-border/80 bg-card shadow-sm transition-all duration-150 hover:-translate-y-0.5 hover:border-primary/20 hover:shadow-md",
         variant === "grid" ? "p-5" : "p-4",
         className,
       )}
@@ -70,7 +70,7 @@ export function CandidateCard({
         <div className="min-w-0">
           <Link
             to={`/participants/${participant.id}`}
-            className="font-semibold tracking-tight hover:text-primary hover:underline underline-offset-4"
+            className="font-semibold tracking-tight text-foreground hover:text-primary"
           >
             {participant.name}
           </Link>
@@ -80,7 +80,7 @@ export function CandidateCard({
             </p>
           ) : null}
         </div>
-        <span className="shrink-0 rounded-md border border-border px-2 py-0.5 text-xs text-muted-foreground">
+        <span className="shrink-0 rounded-md bg-muted/70 px-2 py-0.5 text-xs font-medium text-muted-foreground">
           {skills.length} skills
         </span>
       </div>
@@ -103,7 +103,7 @@ export function CandidateCard({
           {topSkills.map((skill) => (
             <li
               key={skill.id}
-              className="rounded-full border border-border bg-muted/40 px-2.5 py-1 text-xs"
+              className="rounded-full border border-border/80 bg-muted/40 px-2.5 py-1 text-xs"
             >
               {skillLabel(skill.id)}
               <span className="text-muted-foreground">

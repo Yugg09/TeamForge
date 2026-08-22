@@ -6,6 +6,7 @@ import {
   ErrorState,
   LoadingState,
 } from "@/components/ui/state-panel";
+import { Button } from "@/components/ui/button";
 import { useCandidateSearch } from "@/api/use-candidates";
 import { useParticipants } from "@/api/useParticipants";
 import {
@@ -74,13 +75,9 @@ export function CandidateExplorer() {
         title="Could not load candidates"
         description={cohortErrorDetail?.message ?? "Unknown error"}
       >
-        <button
-          type="button"
-          onClick={() => refetchCohort()}
-          className="rounded-md border border-border bg-background px-3 py-1.5 text-sm font-medium hover:bg-accent"
-        >
+        <Button variant="secondary" size="sm" onClick={() => refetchCohort()}>
           Retry
-        </button>
+        </Button>
       </ErrorState>
     );
   }
@@ -108,13 +105,9 @@ export function CandidateExplorer() {
           title="Semantic search failed"
           description={searchErrorDetail?.message ?? "Unknown error"}
         >
-          <button
-            type="button"
-            onClick={() => refetchSearch()}
-            className="rounded-md border border-border bg-background px-3 py-1.5 text-sm font-medium hover:bg-accent"
-          >
+          <Button variant="secondary" size="sm" onClick={() => refetchSearch()}>
             Retry search
-          </button>
+          </Button>
         </ErrorState>
       ) : displayed.length === 0 ? (
         <EmptyState
@@ -127,7 +120,7 @@ export function CandidateExplorer() {
         />
       ) : (
         <>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm font-medium text-muted-foreground">
             Showing {displayed.length}{" "}
             {semanticActive ? "search result" : "candidate"}
             {displayed.length === 1 ? "" : "s"}

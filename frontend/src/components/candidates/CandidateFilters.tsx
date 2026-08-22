@@ -1,4 +1,6 @@
 import type { RoleId } from "@/api/types";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { TextInput } from "@/components/ui/form-inputs";
 import {
   CANONICAL_SKILLS,
@@ -30,7 +32,7 @@ export function CandidateFilters({
   disabled,
 }: CandidateFiltersProps) {
   return (
-    <div className="space-y-4 rounded-xl border border-border bg-card p-4 shadow-sm sm:p-5">
+    <Card className="space-y-4 p-4 sm:p-5">
       <div className="grid gap-4 lg:grid-cols-[1fr_auto_auto] lg:items-end">
         <div className="space-y-1.5">
           <label
@@ -65,7 +67,7 @@ export function CandidateFilters({
               })
             }
             disabled={disabled || semanticActive}
-            className="flex h-9 w-full rounded-md border border-input bg-background px-3 text-sm shadow-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50"
+            className="flex h-10 w-full rounded-lg border border-input bg-background px-3 text-sm shadow-xs transition-colors hover:border-ring/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 disabled:opacity-50"
           >
             <option value="all">All roles</option>
             {ROLE_OPTIONS.map((role) => (
@@ -90,7 +92,7 @@ export function CandidateFilters({
               })
             }
             disabled={disabled || semanticActive}
-            className="flex h-9 w-full rounded-md border border-input bg-background px-3 text-sm shadow-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50"
+            className="flex h-10 w-full rounded-lg border border-input bg-background px-3 text-sm shadow-xs transition-colors hover:border-ring/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 disabled:opacity-50"
           >
             <option value="all">All skills</option>
             {CANONICAL_SKILLS.map((skill) => (
@@ -116,25 +118,19 @@ export function CandidateFilters({
             disabled={disabled}
             className="sm:flex-1"
           />
-          <button
-            type="button"
+          <Button
             onClick={onSemanticSearch}
             disabled={disabled || semanticLoading || semanticQuery.trim().length < 2}
-            className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-sm hover:opacity-95 disabled:opacity-50"
           >
             {semanticLoading ? "Searching…" : "Semantic search"}
-          </button>
+          </Button>
           {semanticActive ? (
-            <button
-              type="button"
-              onClick={onClearSemanticSearch}
-              className="rounded-lg border border-border px-4 py-2 text-sm font-medium hover:bg-accent"
-            >
+            <Button variant="secondary" onClick={onClearSemanticSearch}>
               Back to cohort
-            </button>
+            </Button>
           ) : null}
         </div>
       </div>
-    </div>
+    </Card>
   );
 }

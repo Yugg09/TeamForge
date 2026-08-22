@@ -7,13 +7,15 @@ import { ValueProposition } from "@/components/landing/ValueProposition";
 
 export function LandingPage() {
   return (
-    <div className="space-y-16 sm:space-y-20">
+    <div>
       <LandingHero />
-      <ProblemStatement />
-      <ValueProposition />
-      <HowItWorks />
-      <KeyBenefits />
-      <LandingCta />
+      <div className="mt-16 space-y-16 px-[max(1rem,2.5vw)] sm:mt-20 sm:space-y-20 lg:mt-24 lg:space-y-24">
+        <ProblemStatement />
+        <ValueProposition />
+        <HowItWorks />
+        <KeyBenefits />
+        <LandingCta />
+      </div>
     </div>
   );
 }
