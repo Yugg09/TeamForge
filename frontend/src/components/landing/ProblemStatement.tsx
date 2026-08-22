@@ -14,20 +14,20 @@ export function ProblemStatement() {
       title="The problem with how teams are formed today"
       description="Most hackathons still pick people, not combinations. That leaves critical roles empty, skills stacked redundantly, and teams that can never find overlapping hours to meet."
     >
-      <div className="grid gap-6 lg:grid-cols-2">
-        <blockquote className="rounded-xl border border-border bg-muted/40 p-6 text-lg font-medium leading-relaxed">
+      <div className="grid items-stretch gap-6 lg:grid-cols-2 lg:gap-8">
+        <blockquote className="rounded-2xl border border-border/80 bg-muted/40 px-6 py-8 text-lg font-medium leading-relaxed lg:px-8 lg:py-10 lg:text-xl lg:leading-relaxed">
           A group of highly skilled individuals still fails when everyone shares
           the same skills, when frontend, design, or deployment roles are
           missing, or when the team literally cannot meet.
         </blockquote>
-        <ul className="space-y-3">
+        <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
           {PAIN_POINTS.map((point) => (
             <li
               key={point}
-              className="flex gap-3 rounded-lg border border-border bg-card px-4 py-3 text-sm"
+              className="flex gap-3 rounded-xl border border-border/80 bg-card px-5 py-4 text-sm leading-relaxed shadow-sm"
             >
               <span
-                className="mt-1.5 size-1.5 shrink-0 rounded-full bg-destructive"
+                className="mt-2 size-1.5 shrink-0 rounded-full bg-destructive"
                 aria-hidden
               />
               <span>{point}</span>

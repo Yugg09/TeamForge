@@ -6,7 +6,7 @@ export function DashboardPage() {
     <section className="space-y-8">
       <PageHeader
         title="Cohort dashboard"
-        description="Overview of the cohort, role distribution, fairness, and per-team health."
+        description="Overview of the cohort, role mix, fairness, and per-team health."
       />
       <CohortDashboard />
     </section>

@@ -39,11 +39,11 @@ export function HowItWorks() {
       title="How TeamForge works"
       description="From intake to optimized teams in four steps — intelligence at the combination level, not the individual level."
     >
-      <ol className="grid gap-4 sm:grid-cols-2">
+      <ol className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {STEPS.map(({ step, icon: Icon, title, description }) => (
           <li
             key={step}
-            className="relative rounded-xl border border-border bg-card p-5 shadow-sm"
+            className="relative rounded-2xl border border-border/80 bg-card p-6 shadow-sm"
           >
             <div className="flex items-start gap-4">
               <span className="text-xs font-bold tabular-nums text-primary">
@@ -51,7 +51,7 @@ export function HowItWorks() {
               </span>
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
-                  <Icon className="size-4 text-primary" aria-hidden />
+                  <Icon className="size-4 shrink-0 text-primary" aria-hidden />
                   <h3 className="font-semibold">{title}</h3>
                 </div>
                 <p className="text-sm leading-relaxed text-muted-foreground">

@@ -1,8 +1,10 @@
 import { useMemo } from "react";
 import { Link } from "react-router-dom";
-import { Sparkles, Users } from "lucide-react";
+import { Activity, Layers, Sparkles, Users } from "lucide-react";
 import { TeamCard } from "@/components/teams/TeamCard";
 import { RoleDistributionChart } from "@/components/teams/RoleDistributionChart";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { Card, StatCard } from "@/components/ui/card";
 import {
   EmptyState,
   ErrorState,
@@ -65,13 +67,9 @@ export function CohortDashboard() {
         title="Could not load cohort"
         description={participantsErr?.message ?? "Unknown error"}
       >
-        <button
-          type="button"
-          onClick={() => refetch()}
-          className="rounded-md border border-border bg-background px-3 py-1.5 text-sm font-medium hover:bg-accent"
-        >
+        <Button variant="secondary" size="sm" onClick={() => refetch()}>
           Retry
-        </button>
+        </Button>
       </ErrorState>
     );
   }
@@ -81,44 +79,33 @@ export function CohortDashboard() {
   return (
     <div className="space-y-8">
       <div className="grid gap-4 sm:grid-cols-3">
-        <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
-          <div className="flex items-center gap-2 text-muted-foreground">
-            <Users className="size-4" aria-hidden />
-            <span className="text-sm font-medium">Cohort size</span>
-          </div>
-          <p className="mt-2 text-3xl font-bold tabular-nums">{cohort.length}</p>
-          <p className="mt-1 text-xs text-muted-foreground">
-            GET /api/participants
-          </p>
-        </div>
-        <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
-          <p className="text-sm font-medium text-muted-foreground">Teams formed</p>
-          <p className="mt-2 text-3xl font-bold tabular-nums">{teams.length}</p>
-          <p className="mt-1 text-xs text-muted-foreground">
-            {teams.length > 0 ? "Partition ready" : "Run form-teams"}
-          </p>
-        </div>
-        <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
-          <p className="text-sm font-medium text-muted-foreground">API health</p>
-          <p
-            className={cn(
-              "mt-2 text-lg font-semibold",
-              health?.status === "ok" ? "text-primary" : "text-muted-foreground",
-            )}
-          >
-            {healthLoading ? "…" : health?.status ?? "unknown"}
-          </p>
-          <p className="mt-1 text-xs text-muted-foreground">GET /api/health</p>
-        </div>
+        <StatCard
+          label="Cohort size"
+          value={cohort.length}
+          hint="GET /api/participants"
+          icon={<Users className="size-4" aria-hidden />}
+        />
+        <StatCard
+          label="Teams formed"
+          value={teams.length}
+          hint={teams.length > 0 ? "Partition ready" : "Run form-teams"}
+          icon={<Layers className="size-4" aria-hidden />}
+        />
+        <StatCard
+          label="API health"
+          value={healthLoading ? "…" : health?.status ?? "unknown"}
+          hint="GET /api/health"
+          icon={<Activity className="size-4" aria-hidden />}
+        />
       </div>
 
       {response?.fairness_ok !== undefined ? (
-        <div
+        <Card
           className={cn(
-            "rounded-xl border px-5 py-4",
+            "px-5 py-4",
             response.fairness_ok
-              ? "border-primary/30 bg-primary/5"
-              : "border-destructive/30 bg-destructive/5",
+              ? "border-primary/25 bg-primary/5"
+              : "border-destructive/25 bg-destructive/5",
           )}
         >
           <p className="font-semibold">
@@ -130,29 +117,32 @@ export function CohortDashboard() {
           <p className="mt-1 text-sm text-muted-foreground">
             fairness_ok from POST /api/form-teams
           </p>
-        </div>
+        </Card>
       ) : (
         <EmptyState
           title="No teams formed yet"
           description="Form teams to see fairness and per-team health."
         >
-          <button
-            type="button"
+          <Button
             onClick={() => formTeamsMutation.mutate({ event_id: "demo" })}
             disabled={formTeamsMutation.isPending}
-            className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground"
           >
             <Sparkles className="size-4" aria-hidden />
             Form teams
-          </button>
+          </Button>
         </EmptyState>
       )}
 
       <section className="space-y-4">
-        <h2 className="text-lg font-semibold">Cohort role distribution</h2>
-        <p className="text-sm text-muted-foreground">
-          Preferred roles across the full cohort — not a leaderboard of individuals.
-        </p>
+        <div>
+          <h2 className="text-lg font-semibold tracking-tight">
+            Cohort role distribution
+          </h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Preferred roles across the full cohort — not a leaderboard of
+            individuals.
+          </p>
+        </div>
         {roleSlices.length > 0 ? (
           <RoleDistributionChart
             slices={roleSlices.map((s) => ({
@@ -163,17 +153,21 @@ export function CohortDashboard() {
             title="Preferred roles in cohort"
           />
         ) : (
-          <p className="text-sm text-muted-foreground">No role preferences recorded.</p>
+          <p className="text-sm text-muted-foreground">
+            No role preferences recorded.
+          </p>
         )}
       </section>
 
       {teams.length > 0 ? (
         <section className="space-y-4">
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <h2 className="text-lg font-semibold">Per-team health</h2>
+            <h2 className="text-lg font-semibold tracking-tight">
+              Per-team health
+            </h2>
             <Link
               to="/teams"
-              className="text-sm font-medium text-primary hover:underline"
+              className={buttonVariants({ variant: "link", size: "sm" })}
             >
               View teams →
             </Link>

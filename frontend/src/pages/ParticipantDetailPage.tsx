@@ -1,6 +1,7 @@
 import { Link, useParams } from "react-router-dom";
 import { ParticipantProfileView } from "@/components/participants/ParticipantProfileView";
 import { PageHeader } from "@/components/layout/PageHeader";
+import { Button, buttonVariants } from "@/components/ui/button";
 import {
   ErrorState,
   LoadingState,
@@ -26,7 +27,7 @@ export function ParticipantDetailPage() {
         actions={
           <Link
             to="/participants"
-            className="text-sm font-medium text-primary underline-offset-4 hover:underline"
+            className={buttonVariants({ variant: "link", size: "sm" })}
           >
             Back to cohort
           </Link>
@@ -43,13 +44,9 @@ export function ParticipantDetailPage() {
           title="Could not load profile"
           description={error?.message ?? "Unknown error"}
         >
-          <button
-            type="button"
-            onClick={() => refetch()}
-            className="rounded-md border border-border bg-background px-3 py-1.5 text-sm font-medium hover:bg-accent"
-          >
+          <Button variant="secondary" size="sm" onClick={() => refetch()}>
             Retry
-          </button>
+          </Button>
         </ErrorState>
       ) : isNotFound ? (
         <ErrorState
@@ -58,7 +55,7 @@ export function ParticipantDetailPage() {
         >
           <Link
             to="/participants"
-            className="rounded-md border border-border bg-background px-3 py-1.5 text-sm font-medium hover:bg-accent"
+            className={buttonVariants({ variant: "secondary", size: "sm" })}
           >
             Back to cohort
           </Link>

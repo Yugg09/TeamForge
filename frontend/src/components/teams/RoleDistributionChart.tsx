@@ -8,6 +8,7 @@ import {
   YAxis,
 } from "recharts";
 import type { Team } from "@/api/types";
+import { Card } from "@/components/ui/card";
 import { buildRoleDistribution } from "@/lib/team-display";
 
 type RoleSlice = {
@@ -32,8 +33,8 @@ export function RoleDistributionChart({
   const data = slices ?? (team ? buildRoleDistribution(team) : []);
 
   return (
-    <section className="rounded-xl border border-border bg-card p-5 shadow-sm">
-      <h3 className="text-lg font-semibold">{title}</h3>
+    <Card className="p-5">
+      <h3 className="text-lg font-semibold tracking-tight">{title}</h3>
       <p className="mt-1 text-sm text-muted-foreground">{description}</p>
       {data.length === 0 ? (
         <p className="mt-4 text-sm text-muted-foreground">No roles assigned.</p>
@@ -57,11 +58,11 @@ export function RoleDistributionChart({
                   borderRadius: "8px",
                 }}
               />
-              <Bar dataKey="count" fill="var(--primary)" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="count" fill="var(--primary)" radius={[6, 6, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>
       )}
-    </section>
+    </Card>
   );
 }

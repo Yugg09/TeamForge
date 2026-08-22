@@ -54,7 +54,7 @@ export function KeyBenefits() {
       title="Why organizers choose TeamForge"
       description="Built for hackathon demos where team quality must be obvious in seconds — and defensible under questioning."
     >
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 lg:gap-5">
         {BENEFITS.map((benefit) => (
           <FeatureCard key={benefit.title} {...benefit} />
         ))}

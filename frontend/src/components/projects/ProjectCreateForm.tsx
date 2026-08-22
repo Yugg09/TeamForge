@@ -3,6 +3,7 @@ import { Loader2, Sparkles } from "lucide-react";
 import { ApiError } from "@/api/client";
 import { useAnalyzeProject } from "@/api/use-projects";
 import { ProjectExtractionResult } from "@/components/projects/ProjectExtractionResult";
+import { Button } from "@/components/ui/button";
 import { FormField } from "@/components/ui/form-field";
 import { FormSection } from "@/components/ui/form-section";
 import { TextArea, TextInput } from "@/components/ui/form-inputs";
@@ -146,11 +147,7 @@ export function ProjectCreateForm() {
       ) : null}
 
       <div className="flex justify-end">
-        <button
-          type="submit"
-          disabled={analyzeProject.isPending}
-          className="inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-sm transition hover:opacity-95 disabled:opacity-60"
-        >
+        <Button type="submit" size="lg" disabled={analyzeProject.isPending}>
           {analyzeProject.isPending ? (
             <>
               <Loader2 className="size-4 animate-spin" aria-hidden />
@@ -162,7 +159,7 @@ export function ProjectCreateForm() {
               Extract requirements
             </>
           )}
-        </button>
+        </Button>
       </div>
     </form>
   );

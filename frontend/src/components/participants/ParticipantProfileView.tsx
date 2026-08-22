@@ -1,4 +1,5 @@
 import type { Participant } from "@/api/types";
+import { Card } from "@/components/ui/card";
 import {
   AMBITION_OPTIONS,
   CANONICAL_SKILLS,
@@ -48,7 +49,7 @@ export function ParticipantProfileView({
 
   return (
     <div className="space-y-6">
-      <section className="rounded-xl border border-border bg-card p-5 shadow-sm sm:p-6">
+      <Card className="p-5 sm:p-6">
         <h2 className="text-lg font-semibold">Overview</h2>
         <dl className="mt-4 grid gap-4 sm:grid-cols-2">
           <div>
@@ -74,9 +75,9 @@ export function ParticipantProfileView({
             </dd>
           </div>
         ) : null}
-      </section>
+      </Card>
 
-      <section className="rounded-xl border border-border bg-card p-5 shadow-sm sm:p-6">
+      <Card className="p-5 sm:p-6">
         <h2 className="text-lg font-semibold">Skills</h2>
         {participant.skills && participant.skills.length > 0 ? (
           <ul className="mt-4 space-y-2">
@@ -96,9 +97,9 @@ export function ParticipantProfileView({
         ) : (
           <p className="mt-3 text-sm text-muted-foreground">No skills listed.</p>
         )}
-      </section>
+      </Card>
 
-      <section className="rounded-xl border border-border bg-card p-5 shadow-sm sm:p-6">
+      <Card className="p-5 sm:p-6">
         <h2 className="text-lg font-semibold">Roles & interests</h2>
         <div className="mt-4 space-y-4">
           <div>
@@ -140,9 +141,9 @@ export function ParticipantProfileView({
             )}
           </div>
         </div>
-      </section>
+      </Card>
 
-      <section className="rounded-xl border border-border bg-card p-5 shadow-sm sm:p-6">
+      <Card className="p-5 sm:p-6">
         <h2 className="text-lg font-semibold">Availability</h2>
         {participant.availability && participant.availability.length > 0 ? (
           <ul className="mt-4 space-y-2">
@@ -171,9 +172,9 @@ export function ParticipantProfileView({
             No availability windows listed.
           </p>
         )}
-      </section>
+      </Card>
 
-      <section className="rounded-xl border border-border bg-card p-5 shadow-sm sm:p-6">
+      <Card className="p-5 sm:p-6">
         <h2 className="text-lg font-semibold">Working style & goals</h2>
         <dl className="mt-4 grid gap-4 sm:grid-cols-3">
           <div>
@@ -201,7 +202,7 @@ export function ParticipantProfileView({
             </dd>
           </div>
         </dl>
-      </section>
+      </Card>
     </div>
   );
 }

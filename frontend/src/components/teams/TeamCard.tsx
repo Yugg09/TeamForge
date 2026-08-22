@@ -51,19 +51,24 @@ export function TeamCard({
               className="size-2 shrink-0 rounded-full bg-destructive animate-pulse"
               aria-label="Gap flagged"
             />
-          ) : null}
-          <p className="font-semibold">{team.id}</p>
+          ) : (
+            <span
+              className="size-2 shrink-0 rounded-full bg-primary/50"
+              aria-hidden
+            />
+          )}
+          <p className="font-semibold tracking-tight">{team.id}</p>
         </div>
         <span
           className={cn(
-            "text-lg font-bold tabular-nums",
+            "rounded-md bg-muted/70 px-2 py-0.5 text-lg font-semibold tabular-nums",
             score >= 80 ? "text-primary" : "text-foreground",
           )}
         >
           {score}
         </span>
       </div>
-      <p className="mt-1 text-sm text-muted-foreground">{summary}</p>
+      <p className="mt-2 text-sm text-muted-foreground">{summary}</p>
       <ul className="mt-3 flex flex-wrap gap-1.5">
         {team.member_ids.slice(0, 6).map((memberId) => {
           const name = participantMap.get(memberId)?.name ?? memberId;
@@ -71,7 +76,7 @@ export function TeamCard({
           return (
             <li
               key={memberId}
-              className="rounded-md border border-border bg-muted/40 px-2 py-0.5 text-xs"
+              className="rounded-md border border-border/80 bg-muted/40 px-2 py-0.5 text-xs"
             >
               <span className="font-medium">{name}</span>
               {role ? (
@@ -81,7 +86,7 @@ export function TeamCard({
           );
         })}
         {team.member_ids.length > 6 ? (
-          <li className="text-xs text-muted-foreground px-1">
+          <li className="px-1 text-xs text-muted-foreground">
             +{team.member_ids.length - 6}
           </li>
         ) : null}
@@ -95,10 +100,10 @@ export function TeamCard({
         type="button"
         onClick={onSelect}
         className={cn(
-          "w-full rounded-xl border p-4 text-left shadow-sm transition",
+          "w-full rounded-xl border p-4 text-left shadow-sm transition-all duration-150",
           selected
             ? "border-primary bg-primary/5 ring-1 ring-primary/20"
-            : "border-border bg-card hover:bg-accent/40",
+            : "border-border/80 bg-card hover:-translate-y-0.5 hover:border-primary/25 hover:shadow-md",
           className,
         )}
       >
@@ -111,7 +116,7 @@ export function TeamCard({
     <Link
       to={`/teams/${team.id}`}
       className={cn(
-        "block rounded-xl border border-border bg-card p-4 shadow-sm transition hover:shadow-md",
+        "block rounded-xl border border-border/80 bg-card p-4 shadow-sm transition-all duration-150 hover:-translate-y-0.5 hover:border-primary/25 hover:shadow-md",
         className,
       )}
     >
