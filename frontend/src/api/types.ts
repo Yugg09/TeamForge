@@ -112,6 +112,11 @@ export interface ParticipantsResponse {
   participants: Participant[];
 }
 
+/** GET /api/candidates/search — response (PROJECT-MASTER §10 Phase 2) */
+export interface CandidatesSearchResponse {
+  candidates: Participant[];
+}
+
 export interface HealthResponse {
   status: string;
 }

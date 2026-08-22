@@ -1,6 +1,7 @@
 import { Route, Routes } from "react-router-dom";
 import { AppShell } from "@/components/layout/AppShell";
 import { IdentityProvider } from "@/context/IdentityProvider";
+import { CandidatesPage } from "@/pages/CandidatesPage";
 import { DashboardPage } from "@/pages/DashboardPage";
 import { LandingPage } from "@/pages/LandingPage";
 import { ParticipantDetailPage } from "@/pages/ParticipantDetailPage";
@@ -18,6 +19,7 @@ export default function App() {
           <Route path="dashboard" element={<DashboardPage />} />
           <Route path="participants" element={<ParticipantsPage />} />
           <Route path="participants/:id" element={<ParticipantDetailPage />} />
+          <Route path="candidates" element={<CandidatesPage />} />
           <Route path="projects/new" element={<ProjectCreatePage />} />
           <Route path="teams" element={<TeamsPage />} />
           <Route path="teams/:id" element={<TeamDetailPage />} />
