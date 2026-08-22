@@ -1,6 +1,6 @@
 """Engine acceptance tests (spec §7 Phase 3). No server, no database."""
 
-from app.engine import constraints, objective, solve
+from app.engine import accept_replacement, constraints, objective, remove_member, solve
 from app.engine.types import MIN_OVERLAP_MINUTES
 from tests.factories import (
     NIGHT,
@@ -70,3 +70,45 @@ def test_step_log_is_monotonically_non_decreasing():
     scores = [step.total_score for step in result.step_log]
     assert scores == sorted(scores)
     assert all(step.op in {"seed", "swap", "move"} for step in result.step_log)
+
+
+def _unique_role_member(team, cohort):
+    for mid in team.member_ids:
+        rest = [m for m in team.member_ids if m != mid]
+        flags = constraints.risk_flags(rest, cohort)
+        if any(f.kind == "missing_role" for f in flags):
+            return mid
+    return team.member_ids[0]
+
+
+def test_remove_returns_gap_flag_and_a_replacement():
+    people = balanced_five(prefix="a") + balanced_five(prefix="b")
+    cohort = cohort_of(people)
+    result = solve(cohort)
+    team = result.teams[0]
+    member = _unique_role_member(team, cohort)
+    teams = {t.id: list(t.member_ids) for t in result.teams}
+
+    out = remove_member(team.id, member, teams, cohort)
+    assert out.gap_flag is not None
+    assert out.suggested_replacement_id is not None
+    assert out.suggested_replacement_id not in out.team.member_ids
+    assert member not in out.team.member_ids
+
+
+def test_accept_heals_the_gap_and_raises_score():
+    people = balanced_five(prefix="a") + balanced_five(prefix="b")
+    cohort = cohort_of(people)
+    result = solve(cohort)
+    team = result.teams[0]
+    member = _unique_role_member(team, cohort)
+    teams = {t.id: list(t.member_ids) for t in result.teams}
+
+    wounded = remove_member(team.id, member, teams, cohort)
+    teams[team.id] = wounded.team.member_ids
+    healed = accept_replacement(team.id, wounded.suggested_replacement_id, teams, cohort)
+
+    assert healed.gap_flag is None
+    assert healed.score_after > healed.score_before
+    assert wounded.suggested_replacement_id in healed.team.member_ids
+    assert member not in healed.team.member_ids
