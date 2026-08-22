@@ -1,6 +1,6 @@
 import type { ApiErrorBody } from "./types";
 
-const DEFAULT_API_BASE = "/api";
+const DEFAULT_API_BASE = "";
 
 export function isMockMode(): boolean {
   const flag = import.meta.env.VITE_USE_MOCK;
@@ -8,8 +8,9 @@ export function isMockMode(): boolean {
 }
 
 /**
- * Resolved API root. Uses VITE_API_BASE_URL when set (e.g. http://localhost:8000),
- * otherwise falls back to the Vite dev proxy path `/api`.
+ * Resolved API root. Callers pass full paths like `/api/health`.
+ * Uses VITE_API_BASE_URL when set (e.g. http://localhost:8000);
+ * otherwise the empty base lets the Vite proxy handle `/api`.
  */
 export function getApiBaseUrl(): string {
   if (isMockMode()) {
