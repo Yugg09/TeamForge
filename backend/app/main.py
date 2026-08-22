@@ -6,12 +6,22 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
+from sqlmodel import Session
+
 from app.api import form_teams, participants, rebalance
 from app.config import settings
+from app.db import engine, init_db
+from app.seed import seed_database
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    """Create tables and make sure the demo cohort exists, so a bare checkout
+    serves real data on first boot."""
+    init_db()
+    if not settings.mock_mode:
+        with Session(engine) as session:
+            seed_database(session)
     yield
 
 
