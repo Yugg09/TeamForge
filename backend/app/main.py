@@ -6,6 +6,7 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
+from app.api import form_teams, participants, rebalance
 from app.config import settings
 
 
@@ -34,6 +35,11 @@ app.add_middleware(
 async def unhandled_exception_handler(request: Request, exc: Exception) -> JSONResponse:
     """Every error leaves the API as {"detail": "..."} — the shape the frontend expects."""
     return JSONResponse(status_code=500, content={"detail": str(exc) or "internal server error"})
+
+
+app.include_router(participants.router)
+app.include_router(form_teams.router)
+app.include_router(rebalance.router)
 
 
 @app.get("/api/health")
