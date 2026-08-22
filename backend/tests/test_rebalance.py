@@ -1,4 +1,4 @@
-"""Phase 4 rebalancer: constrained remove/accept against the live engine."""
+"""Phase 4 rebalancer + Phase 5 form→rebalance cycle and reseed."""
 
 from fastapi.testclient import TestClient
 
@@ -6,6 +6,7 @@ from app.config import settings
 from app.engine.preprocess import build_cohort
 from app.engine.rebalance import accept_replacement, remove_member
 from app.main import app
+from app.seed import COHORT_SIZE
 
 client = TestClient(app)
 
@@ -68,3 +69,20 @@ def test_form_then_rebalance_cycle(session):
     assert healed["suggested_replacement_id"] is None
     assert healed["score_after"] > healed["score_before"]
     assert wounded["suggested_replacement_id"] in healed["team"]["member_ids"]
+
+
+def test_reseed_resets_the_demo_cohort(session):
+    r = client.post("/api/dev/reseed")
+    assert r.status_code == 200
+    assert r.json()["status"] == "ok"
+    assert r.json()["participants"] == COHORT_SIZE
+    listed = client.get("/api/participants")
+    assert listed.status_code == 200
+    assert len(listed.json()["participants"]) == COHORT_SIZE
+
+
+def test_reseed_is_hidden_when_dev_mode_is_off(monkeypatch):
+    monkeypatch.setattr(settings, "dev_mode", False)
+    r = client.post("/api/dev/reseed")
+    assert r.status_code == 404
+    assert r.json() == {"detail": "not found"}
