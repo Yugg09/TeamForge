@@ -119,3 +119,15 @@ export interface HealthResponse {
 export interface ApiErrorBody {
   detail?: string;
 }
+
+/** POST /api/projects/analyze — request (PROJECT-MASTER §10) */
+export interface ProjectAnalyzeRequest {
+  description: string;
+}
+
+/** POST /api/projects/analyze — response (PROJECT-MASTER §10) */
+export interface ProjectAnalyzeResponse {
+  domain: string;
+  required_skills: string[];
+  roles: RoleId[];
+}

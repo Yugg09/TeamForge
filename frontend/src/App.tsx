@@ -5,6 +5,7 @@ import { DashboardPage } from "@/pages/DashboardPage";
 import { LandingPage } from "@/pages/LandingPage";
 import { ParticipantDetailPage } from "@/pages/ParticipantDetailPage";
 import { ParticipantsPage } from "@/pages/ParticipantsPage";
+import { ProjectCreatePage } from "@/pages/ProjectCreatePage";
 import { TeamDetailPage } from "@/pages/TeamDetailPage";
 import { TeamsPage } from "@/pages/TeamsPage";
 
@@ -17,6 +18,7 @@ export default function App() {
           <Route path="dashboard" element={<DashboardPage />} />
           <Route path="participants" element={<ParticipantsPage />} />
           <Route path="participants/:id" element={<ParticipantDetailPage />} />
+          <Route path="projects/new" element={<ProjectCreatePage />} />
           <Route path="teams" element={<TeamsPage />} />
           <Route path="teams/:id" element={<TeamDetailPage />} />
         </Route>
