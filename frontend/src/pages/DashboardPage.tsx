@@ -1,30 +1,14 @@
 import { PageHeader } from "@/components/layout/PageHeader";
-import { PagePlaceholder } from "@/components/layout/PagePlaceholder";
+import { RecommendedTeamDashboard } from "@/components/teams/RecommendedTeamDashboard";
 
 export function DashboardPage() {
   return (
     <section className="space-y-8">
       <PageHeader
-        title="Dashboard"
-        description="Cohort overview — role distribution, fairness status, and per-team health."
+        title="Recommended team"
+        description="Primary demo view — optimizer output from POST /api/form-teams with score breakdown, coverage, gaps, and explanation."
       />
-      <PagePlaceholder
-        blocks={[
-          {
-            title: "Role distribution",
-            description: "Bar or donut chart of assigned roles across formed teams.",
-          },
-          {
-            title: "Fairness status",
-            description: "Banner showing whether every participant is placed and every team is viable.",
-          },
-          {
-            title: "Team health",
-            description: "At-a-glance cards for each team score and flagged risks.",
-          },
-        ]}
-        footer="Dashboard widgets will connect to form-teams and participant data in a later phase."
-      />
+      <RecommendedTeamDashboard />
     </section>
   );
 }
