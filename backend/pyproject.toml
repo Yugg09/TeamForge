@@ -1,0 +1,33 @@
+[project]
+name = "teamforge-backend"
+version = "0.1.0"
+description = "TeamForge — intelligent hackathon team-formation backend (FastAPI + CP-SAT matching engine)"
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi>=0.110",
+    "uvicorn[standard]>=0.29",
+    "pydantic>=2.6",
+    "pydantic-settings>=2.2",
+    "sqlmodel>=0.0.16",
+    "psycopg[binary]>=3.1",
+    "ortools>=9.9",
+    "networkx>=3.2",
+    "numpy>=1.26",
+    "scipy>=1.12",
+]
+
+[project.optional-dependencies]
+# Optional intelligence layer. The app boots and demos without it —
+# services/embeddings.py falls back to Jaccard similarity.
+embeddings = ["sentence-transformers>=2.6"]
+dev = ["pytest>=8.0", "httpx>=0.27"]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["app*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

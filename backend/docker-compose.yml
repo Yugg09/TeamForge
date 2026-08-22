@@ -1,0 +1,20 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: teamforge-db
+    environment:
+      POSTGRES_USER: teamforge
+      POSTGRES_PASSWORD: teamforge
+      POSTGRES_DB: teamforge
+    ports:
+      - "5432:5432"
+    volumes:
+      - teamforge-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U teamforge -d teamforge"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  teamforge-pgdata:
