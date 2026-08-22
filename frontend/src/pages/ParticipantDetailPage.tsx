@@ -1,14 +1,27 @@
 import { Link, useParams } from "react-router-dom";
+import { ParticipantProfileView } from "@/components/participants/ParticipantProfileView";
 import { PageHeader } from "@/components/layout/PageHeader";
-import { PagePlaceholder } from "@/components/layout/PagePlaceholder";
+import {
+  ErrorState,
+  LoadingState,
+} from "@/components/ui/state-panel";
+import { useParticipant } from "@/api/use-participants";
 
 export function ParticipantDetailPage() {
   const { id } = useParams<{ id: string }>();
+  const {
+    participant,
+    isLoading,
+    isError,
+    error,
+    isNotFound,
+    refetch,
+  } = useParticipant(id);
 
   return (
     <section className="space-y-8">
       <PageHeader
-        title={id ? `Participant ${id}` : "Participant"}
+        title={participant?.name ?? (id ? `Participant ${id}` : "Participant")}
         description="Skills, availability (local + UTC), ambitions, and work-style preferences."
         actions={
           <Link
@@ -19,23 +32,40 @@ export function ParticipantDetailPage() {
           </Link>
         }
       />
-      <PagePlaceholder
-        blocks={[
-          {
-            title: "Skills & proficiency",
-            description: "Canonical skills with 1–5 proficiency and verification badges.",
-          },
-          {
-            title: "Availability",
-            description: "Weekly windows shown in local time with UTC reference.",
-          },
-          {
-            title: "Goals & style",
-            description: "Ambition, work style, sync preference, and interests.",
-          },
-        ]}
-        footer={`Profile detail for participant ID "${id ?? "unknown"}" will load from GET /api/participants.`}
-      />
+
+      {isLoading ? (
+        <LoadingState
+          title="Loading profile"
+          description="Resolving participant from cohort data…"
+        />
+      ) : isError ? (
+        <ErrorState
+          title="Could not load profile"
+          description={error?.message ?? "Unknown error"}
+        >
+          <button
+            type="button"
+            onClick={() => refetch()}
+            className="rounded-md border border-border bg-background px-3 py-1.5 text-sm font-medium hover:bg-accent"
+          >
+            Retry
+          </button>
+        </ErrorState>
+      ) : isNotFound ? (
+        <ErrorState
+          title="Participant not found"
+          description={`No participant with id "${id}" exists in the current cohort.`}
+        >
+          <Link
+            to="/participants"
+            className="rounded-md border border-border bg-background px-3 py-1.5 text-sm font-medium hover:bg-accent"
+          >
+            Back to cohort
+          </Link>
+        </ErrorState>
+      ) : participant ? (
+        <ParticipantProfileView participant={participant} />
+      ) : null}
     </section>
   );
 }
