@@ -205,6 +205,49 @@ teamforge/
 
 ---
 
+## Deploy
+
+### Backend (Render)
+
+The API lives in `backend/`. Use the Blueprint at `render.yaml`, or create a **Web Service** from this GitHub repo:
+
+| Setting | Value |
+|---|---|
+| Root Directory | `backend` |
+| Runtime | Python 3.12 |
+| Build command | `pip install -e .` |
+| Start command | `uvicorn app.main:app --host 0.0.0.0 --port $PORT` |
+| Health check | `/api/health` |
+
+Attach a Render **PostgreSQL** instance and set `DATABASE_URL` from its Internal (or External) connection string. Render’s `postgres://` URLs are rewritten to SQLAlchemy’s `postgresql+psycopg://` automatically.
+
+Environment variables:
+
+| Variable | Value |
+|---|---|
+| `CORS_ORIGINS` | Your Vercel origin, e.g. `https://your-app.vercel.app` (no trailing slash) |
+| `CORS_ORIGIN_REGEX` | `https://.*\.vercel\.app` (covers preview deploys) |
+| `DEV_MODE` | `0` |
+| `MOCK_MODE` | `0` |
+| `LLM_API_KEY` | OpenRouter key (optional; bio parse / explanations) |
+
+After the service is live, open `https://<your-service>.onrender.com/api/health` — it should return `{"status":"ok"}`.
+
+Free Render web services spin down after idle time; the first request after that can take 30–60s. Free Render Postgres expires after 30 days unless you upgrade.
+
+### Frontend (Vercel)
+
+In the Vercel project, set these **build-time** variables and redeploy:
+
+| Variable | Value |
+|---|---|
+| `VITE_USE_MOCK` | `0` |
+| `VITE_API_BASE_URL` | `https://<your-service>.onrender.com` (no trailing slash) |
+
+Vite inlines `VITE_*` at build time, so changing them requires a new Vercel deploy.
+
+---
+
 ## Environment Variables
 
 ### Frontend

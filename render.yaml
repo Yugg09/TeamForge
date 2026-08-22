@@ -1,0 +1,40 @@
+# Render Blueprint — https://dashboard.render.com/blueprints
+# After the first deploy, set CORS_ORIGINS to your production Vercel origin
+# (e.g. https://teamforge.vercel.app) and LLM_API_KEY if you use OpenRouter.
+
+databases:
+  - name: teamforge-db
+    plan: free
+    databaseName: teamforge
+    user: teamforge
+
+services:
+  - type: web
+    name: teamforge-api
+    runtime: python
+    plan: free
+    rootDir: backend
+    buildCommand: pip install -e .
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/health
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.12.8"
+      - key: DATABASE_URL
+        fromDatabase:
+          name: teamforge-db
+          property: connectionString
+      - key: CORS_ORIGINS
+        sync: false
+      - key: CORS_ORIGIN_REGEX
+        value: https://.*\.vercel\.app
+      - key: DEV_MODE
+        value: "0"
+      - key: MOCK_MODE
+        value: "0"
+      - key: LLM_API_KEY
+        sync: false
+      - key: LLM_MODEL
+        value: meta-llama/llama-3.1-8b-instruct:free
+      - key: LLM_BASE_URL
+        value: https://openrouter.ai/api/v1

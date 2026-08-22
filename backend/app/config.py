@@ -2,7 +2,19 @@
 
 from functools import lru_cache
 
+from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+
+def normalize_database_url(url: str) -> str:
+    """Accept Render/Heroku `postgres://` URLs and require SSL for Render hosts."""
+    if url.startswith("postgres://"):
+        url = "postgresql+psycopg://" + url[len("postgres://") :]
+    elif url.startswith("postgresql://") and "+psycopg" not in url.split("://", 1)[0]:
+        url = "postgresql+psycopg://" + url[len("postgresql://") :]
+    if "render.com" in url and "sslmode=" not in url:
+        url += ("&" if "?" in url else "?") + "sslmode=require"
+    return url
 
 
 class Settings(BaseSettings):
@@ -16,6 +28,8 @@ class Settings(BaseSettings):
     dev_mode: bool = True
 
     cors_origins: str = "http://localhost:3000,http://localhost:5173"
+    # Lets Vercel preview deployments talk to the API without listing every URL.
+    cors_origin_regex: str = r"https://.*\.vercel\.app"
     embedding_model: str = "all-MiniLM-L6-v2"
 
     # LLM settings for bio parsing and explanations
@@ -25,6 +39,11 @@ class Settings(BaseSettings):
 
     # Required roles for the demo event; a project brief may override.
     required_roles: str = "frontend,backend,ai_ml,design"
+
+    @field_validator("database_url", mode="before")
+    @classmethod
+    def _normalize_database_url(cls, value: str) -> str:
+        return normalize_database_url(value) if isinstance(value, str) else value
 
     @property
     def cors_origin_list(self) -> list[str]:
