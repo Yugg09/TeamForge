@@ -1,9 +1,14 @@
 import { useNavigate } from "react-router-dom";
 import { ParticipantList } from "@/components/participants/ParticipantList";
+import { IntakePanel } from "@/components/participants/IntakePanel";
 import { ParticipantProfileForm } from "@/components/participants/ParticipantProfileForm";
 import { PageHeader } from "@/components/layout/PageHeader";
-import { EmptyState, ErrorState, LoadingState } from "@/components/ui/state-panel";
-import { useParticipants } from "@/api/use-participants";
+import {
+  EmptyState,
+  ErrorState,
+  LoadingSkeleton,
+} from "@/components/ui/state-panel";
+import { useParticipants } from "@/api/useParticipants";
 
 export function ParticipantsPage() {
   const navigate = useNavigate();
@@ -14,16 +19,17 @@ export function ParticipantsPage() {
     <section className="space-y-10">
       <PageHeader
         title="Participants"
-        description="Browse the cohort and add members with structured profiles for team formation."
+        description="Browse the cohort and add members — quick intake or full profile."
+      />
+
+      <IntakePanel
+        onSuccess={(participantId) => navigate(`/participants/${participantId}`)}
       />
 
       <div className="space-y-4">
         <h2 className="text-lg font-semibold">Cohort</h2>
         {isLoading ? (
-          <LoadingState
-            title="Loading participants"
-            description="Fetching cohort from GET /api/participants…"
-          />
+          <LoadingSkeleton title="Loading participants" rows={5} />
         ) : isError ? (
           <ErrorState
             title="Could not load participants"
@@ -42,13 +48,13 @@ export function ParticipantsPage() {
         ) : (
           <EmptyState
             title="No participants yet"
-            description="Add the first member using the profile form below."
+            description="Add the first member using the intake panel above."
           />
         )}
       </div>
 
       <div className="space-y-4">
-        <h2 className="text-lg font-semibold">Add participant</h2>
+        <h2 className="text-lg font-semibold">Full profile form</h2>
         <ParticipantProfileForm
           onSuccess={(participantId) => navigate(`/participants/${participantId}`)}
         />

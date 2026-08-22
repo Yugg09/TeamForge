@@ -10,19 +10,31 @@ import {
 import type { Team } from "@/api/types";
 import { buildRoleDistribution } from "@/lib/team-display";
 
-type RoleDistributionChartProps = {
-  team: Team;
+type RoleSlice = {
+  role: string;
+  label: string;
+  count: number;
 };
 
-export function RoleDistributionChart({ team }: RoleDistributionChartProps) {
-  const data = buildRoleDistribution(team);
+type RoleDistributionChartProps = {
+  team?: Team;
+  slices?: RoleSlice[];
+  title?: string;
+  description?: string;
+};
+
+export function RoleDistributionChart({
+  team,
+  slices,
+  title = "Role distribution",
+  description = "Assigned roles per member from role_assignments.",
+}: RoleDistributionChartProps) {
+  const data = slices ?? (team ? buildRoleDistribution(team) : []);
 
   return (
     <section className="rounded-xl border border-border bg-card p-5 shadow-sm">
-      <h3 className="text-lg font-semibold">Role distribution</h3>
-      <p className="mt-1 text-sm text-muted-foreground">
-        Assigned roles per member from role_assignments.
-      </p>
+      <h3 className="text-lg font-semibold">{title}</h3>
+      <p className="mt-1 text-sm text-muted-foreground">{description}</p>
       {data.length === 0 ? (
         <p className="mt-4 text-sm text-muted-foreground">No roles assigned.</p>
       ) : (

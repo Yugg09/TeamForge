@@ -7,7 +7,7 @@ import {
   LoadingState,
 } from "@/components/ui/state-panel";
 import { useCandidateSearch } from "@/api/use-candidates";
-import { useParticipants } from "@/api/use-participants";
+import { useParticipants } from "@/api/useParticipants";
 import {
   DEFAULT_CANDIDATE_FILTERS,
   filterParticipants,

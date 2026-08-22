@@ -1,7 +1,7 @@
 import { useState, type FormEvent } from "react";
 import { Loader2 } from "lucide-react";
 import { ApiError } from "@/api/client";
-import { useCreateParticipant } from "@/api/use-participants";
+import { useCreateParticipant } from "@/api/useParticipants";
 import { AvailabilityEditor } from "@/components/participants/AvailabilityEditor";
 import { InterestsInput } from "@/components/participants/InterestsInput";
 import { RoleCheckboxGroup } from "@/components/participants/RoleCheckboxGroup";

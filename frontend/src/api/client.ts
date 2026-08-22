@@ -2,11 +2,19 @@ import type { ApiErrorBody } from "./types";
 
 const DEFAULT_API_BASE = "/api";
 
+export function isMockMode(): boolean {
+  const flag = import.meta.env.VITE_USE_MOCK;
+  return flag === "1" || flag === "true";
+}
+
 /**
  * Resolved API root. Uses VITE_API_BASE_URL when set (e.g. http://localhost:8000),
  * otherwise falls back to the Vite dev proxy path `/api`.
  */
 export function getApiBaseUrl(): string {
+  if (isMockMode()) {
+    return DEFAULT_API_BASE;
+  }
   const configured = import.meta.env.VITE_API_BASE_URL?.trim();
   if (!configured) {
     return DEFAULT_API_BASE;
@@ -30,6 +38,11 @@ export async function apiFetch<T>(
   path: string,
   options: RequestInit = {},
 ): Promise<T> {
+  if (isMockMode()) {
+    const { mockApiFetch } = await import("./mock");
+    return mockApiFetch<T>(path, options);
+  }
+
   const base = getApiBaseUrl();
   const normalizedPath = path.startsWith("/") ? path : `/${path}`;
   const url = `${base}${normalizedPath}`;

@@ -4,45 +4,57 @@ import { TeamAnalyticsPanel } from "@/components/teams/TeamAnalyticsPanel";
 import { PageHeader } from "@/components/layout/PageHeader";
 import {
   EmptyState,
-  LoadingState,
+  ErrorState,
+  LoadingSkeleton,
 } from "@/components/ui/state-panel";
 import { useFormedTeam } from "@/api/use-formed-team";
-import { useFormTeamsMutation } from "@/api/use-form-teams";
-import { useParticipants } from "@/api/use-participants";
+import { useFormTeamsMutation } from "@/api/useFormTeams";
+import { useParticipants } from "@/api/useParticipants";
 
 export function TeamDetailPage() {
   const { id } = useParams<{ id: string }>();
   const { team, hasFormedData, fairnessOk } = useFormedTeam(id);
   const formTeamsMutation = useFormTeamsMutation();
-  const { data: participants, isLoading: participantsLoading } =
-    useParticipants();
+  const {
+    data: participants,
+    isLoading: participantsLoading,
+    isError: participantsError,
+    error: participantsErr,
+  } = useParticipants();
 
   return (
     <section className="space-y-8">
       <PageHeader
         title={team?.id ?? (id ? `Team ${id}` : "Team")}
-        description="Team analytics — score, coverage, gaps, composition, and member roles from form-teams data."
+        description="Members, score breakdown, radar, flags, and rebalancer entry."
         actions={
-          <Link
-            to="/teams"
-            className="text-sm font-medium text-primary underline-offset-4 hover:underline"
-          >
-            Back to teams
-          </Link>
+          <div className="flex flex-wrap gap-3">
+            {team ? (
+              <Link
+                to={`/rebalance/${team.id}`}
+                className="rounded-lg bg-primary px-3 py-1.5 text-sm font-semibold text-primary-foreground hover:opacity-95"
+              >
+                Rebalance
+              </Link>
+            ) : null}
+            <Link
+              to="/teams"
+              className="text-sm font-medium text-primary underline-offset-4 hover:underline"
+            >
+              Back to teams
+            </Link>
+          </div>
         }
       />
 
       {formTeamsMutation.isPending ? (
-        <LoadingState
-          title="Forming teams"
-          description="Loading team analytics from POST /api/form-teams…"
-        />
+        <LoadingSkeleton title="Forming teams" rows={4} />
       ) : !hasFormedData || !team ? (
         <EmptyState
           title="No team analytics available"
           description={
             id
-              ? `Team "${id}" was not found in the current form-teams cache. Form teams first.`
+              ? `Team "${id}" was not found. Form teams first.`
               : "Form teams to load analytics."
           }
         >
@@ -56,13 +68,18 @@ export function TeamDetailPage() {
           </button>
         </EmptyState>
       ) : participantsLoading ? (
-        <LoadingState title="Loading member profiles" />
+        <LoadingSkeleton title="Loading member profiles" rows={3} />
+      ) : participantsError ? (
+        <ErrorState
+          title="Could not load participants"
+          description={participantsErr?.message ?? "Unknown error"}
+        />
       ) : (
         <TeamAnalyticsPanel
           team={team}
           participants={participants ?? []}
           fairnessOk={fairnessOk}
-          heroLabel="Team analytics"
+          heroLabel="Team detail"
         />
       )}
     </section>

@@ -5,7 +5,7 @@ import {
   ErrorState,
   LoadingState,
 } from "@/components/ui/state-panel";
-import { useParticipant } from "@/api/use-participants";
+import { useParticipant } from "@/api/useParticipants";
 
 export function ParticipantDetailPage() {
   const { id } = useParams<{ id: string }>();

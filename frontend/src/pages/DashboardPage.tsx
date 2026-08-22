@@ -1,14 +1,14 @@
 import { PageHeader } from "@/components/layout/PageHeader";
-import { RecommendedTeamDashboard } from "@/components/teams/RecommendedTeamDashboard";
+import { CohortDashboard } from "@/components/teams/CohortDashboard";
 
 export function DashboardPage() {
   return (
     <section className="space-y-8">
       <PageHeader
-        title="Recommended team"
-        description="Primary demo view — optimizer output from POST /api/form-teams with score breakdown, coverage, gaps, and explanation."
+        title="Cohort dashboard"
+        description="Overview of the cohort, role distribution, fairness, and per-team health."
       />
-      <RecommendedTeamDashboard />
+      <CohortDashboard />
     </section>
   );
 }

@@ -81,3 +81,33 @@ export function ErrorState({
     </div>
   );
 }
+
+export function LoadingSkeleton({
+  title = "Loading…",
+  rows = 3,
+  className,
+}: {
+  title?: string;
+  rows?: number;
+  className?: string;
+}) {
+  return (
+    <div
+      className={cn(
+        "rounded-xl border border-border bg-card p-6 shadow-sm",
+        className,
+      )}
+    >
+      <p className="text-sm font-medium text-muted-foreground">{title}</p>
+      <div className="mt-4 space-y-3">
+        {Array.from({ length: rows }).map((_, index) => (
+          <div
+            key={index}
+            className="h-10 animate-pulse rounded-lg bg-muted"
+            style={{ width: `${88 - index * 8}%` }}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}

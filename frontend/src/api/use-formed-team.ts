@@ -3,7 +3,7 @@ import type { Team } from "@/api/types";
 import {
   formedTeamsQueryKey,
   useFormedTeams,
-} from "@/api/use-form-teams";
+} from "@/api/useFormTeams";
 
 export function useFormedTeam(teamId: string | undefined) {
   const queryClient = useQueryClient();
