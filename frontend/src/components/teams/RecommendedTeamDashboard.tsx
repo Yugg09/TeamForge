@@ -1,17 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { Loader2, Sparkles } from "lucide-react";
 import { Link } from "react-router-dom";
-import { MemberCard } from "@/components/teams/MemberCard";
-import { RoleDistributionChart } from "@/components/teams/RoleDistributionChart";
-import { ScoreBreakdown } from "@/components/teams/ScoreBreakdown";
-import { SkillCoverageChart } from "@/components/teams/SkillCoverageChart";
-import { SkillGapSection } from "@/components/teams/SkillGapSection";
+import { TeamAnalyticsPanel } from "@/components/teams/TeamAnalyticsPanel";
 import { TeamCard } from "@/components/teams/TeamCard";
-import {
-  TeamExplanation,
-  TeamStrengthsWeaknesses,
-} from "@/components/teams/TeamExplanation";
-import { TeamScoreHero } from "@/components/teams/TeamScoreHero";
 import {
   EmptyState,
   ErrorState,
@@ -23,9 +14,8 @@ import {
 } from "@/api/use-form-teams";
 import { useParticipants } from "@/api/use-participants";
 import { useQueryClient } from "@tanstack/react-query";
-import type { FormTeamsResponse, Team } from "@/api/types";
+import type { FormTeamsResponse } from "@/api/types";
 import { getRecommendedTeam } from "@/lib/team-display";
-import { buildTeamInsights } from "@/lib/team-explain";
 
 export function RecommendedTeamDashboard() {
   const queryClient = useQueryClient();
@@ -48,22 +38,13 @@ export function RecommendedTeamDashboard() {
     }
   }, [defaultTeam, selectedTeamId]);
 
-  const selectedTeam: Team | undefined = useMemo(() => {
+  const selectedTeam = useMemo(() => {
     if (teams.length === 0) return undefined;
     if (selectedTeamId) {
       return teams.find((team) => team.id === selectedTeamId) ?? defaultTeam;
     }
     return defaultTeam;
   }, [teams, selectedTeamId, defaultTeam]);
-
-  const participantMap = useMemo(() => {
-    const map = new Map(participants?.map((p) => [p.id, p]) ?? []);
-    return map;
-  }, [participants]);
-
-  const insights = selectedTeam
-    ? buildTeamInsights(selectedTeam.score)
-    : null;
 
   const isLoading = formTeamsMutation.isPending;
   const isError = formTeamsMutation.isError;
@@ -72,7 +53,7 @@ export function RecommendedTeamDashboard() {
     return (
       <EmptyState
         title="No recommended team yet"
-        description="Form balanced teams from the cohort to populate this demo dashboard."
+        description="Form balanced teams from the cohort to populate analytics."
       >
         <button
           type="button"
@@ -112,7 +93,7 @@ export function RecommendedTeamDashboard() {
     );
   }
 
-  if (!selectedTeam || !insights) {
+  if (!selectedTeam) {
     return (
       <EmptyState
         title="No team data"
@@ -158,37 +139,12 @@ export function RecommendedTeamDashboard() {
         </div>
       ) : null}
 
-      <TeamScoreHero team={selectedTeam} fairnessOk={response?.fairness_ok} />
-
-      <div className="grid gap-6 lg:grid-cols-2">
-        <SkillCoverageChart team={selectedTeam} />
-        <RoleDistributionChart team={selectedTeam} />
-      </div>
-
-      <div className="grid gap-6 lg:grid-cols-2">
-        <ScoreBreakdown score={selectedTeam.score} />
-        <SkillGapSection score={selectedTeam.score} />
-      </div>
-
-      <TeamStrengthsWeaknesses insights={insights} />
-      <TeamExplanation insights={insights} />
-
-      <section className="space-y-4">
-        <h3 className="text-lg font-semibold">Team members</h3>
-        <ul className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-          {selectedTeam.member_ids.map((memberId) => (
-            <li key={memberId}>
-              <MemberCard
-                memberId={memberId}
-                assignedRole={
-                  selectedTeam.role_assignments[memberId] ?? "frontend"
-                }
-                participant={participantMap.get(memberId)}
-              />
-            </li>
-          ))}
-        </ul>
-      </section>
+      <TeamAnalyticsPanel
+        team={selectedTeam}
+        participants={participants ?? []}
+        fairnessOk={response?.fairness_ok}
+        heroLabel="Recommended team"
+      />
     </div>
   );
 }

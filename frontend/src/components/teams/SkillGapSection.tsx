@@ -7,14 +7,15 @@ type SkillGapSectionProps = {
 };
 
 export function SkillGapSection({ score }: SkillGapSectionProps) {
-  const gapFlags = score.flags.filter(
+  const flags = score.flags ?? [];
+  const gapFlags = flags.filter(
     (flag) =>
       flag.kind === "missing_role" ||
       flag.kind === "single_point_of_failure" ||
       flag.kind === "availability_gap",
   );
 
-  const missingRoles = score.flags.filter((flag) => flag.kind === "missing_role");
+  const missingRoles = flags.filter((flag) => flag.kind === "missing_role");
 
   return (
     <section className="rounded-xl border border-border bg-card p-5 shadow-sm">

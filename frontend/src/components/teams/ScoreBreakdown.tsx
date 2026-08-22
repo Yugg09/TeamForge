@@ -1,5 +1,5 @@
 import type { TeamScore } from "@/api/types";
-import { PENALTY_LABELS, TERM_LABELS } from "@/lib/team-display";
+import { PENALTY_LABELS, TERM_LABELS, safeTermValue } from "@/lib/team-display";
 
 type ScoreBreakdownProps = {
   score: TeamScore;
@@ -40,6 +40,9 @@ function TermBar({
 }
 
 export function ScoreBreakdown({ score }: ScoreBreakdownProps) {
+  const terms = score.terms ?? ({} as TeamScore["terms"]);
+  const penalties = score.penalties ?? ({} as TeamScore["penalties"]);
+
   return (
     <section className="rounded-xl border border-border bg-card p-5 shadow-sm">
       <h3 className="text-lg font-semibold">Score breakdown</h3>
@@ -56,7 +59,7 @@ export function ScoreBreakdown({ score }: ScoreBreakdownProps) {
             <TermBar
               key={key}
               label={TERM_LABELS[key]}
-              value={score.terms[key]}
+              value={safeTermValue(terms[key])}
             />
           ),
         )}
@@ -70,7 +73,7 @@ export function ScoreBreakdown({ score }: ScoreBreakdownProps) {
             <TermBar
               key={key}
               label={PENALTY_LABELS[key]}
-              value={score.penalties[key]}
+              value={safeTermValue(penalties[key])}
               variant="penalty"
             />
           ),

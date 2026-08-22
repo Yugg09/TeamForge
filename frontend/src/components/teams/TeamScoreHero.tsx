@@ -5,15 +5,19 @@ import { cn } from "@/lib/utils";
 type TeamScoreHeroProps = {
   team: Team;
   fairnessOk?: boolean;
+  heroLabel?: string;
   className?: string;
 };
 
 export function TeamScoreHero({
   team,
   fairnessOk,
+  heroLabel = "Recommended team",
   className,
 }: TeamScoreHeroProps) {
-  const score = scoreToDisplay(team.score.total);
+  const total = team.score?.total;
+  const score =
+    total !== undefined && !Number.isNaN(total) ? scoreToDisplay(total) : null;
 
   return (
     <div
@@ -27,7 +31,7 @@ export function TeamScoreHero({
         className="pointer-events-none absolute -right-6 -top-6 size-32 rounded-full bg-primary/15 blur-2xl"
       />
       <p className="text-sm font-medium uppercase tracking-wider text-primary">
-        Recommended team
+        {heroLabel}
       </p>
       <div className="mt-4 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
@@ -41,7 +45,7 @@ export function TeamScoreHero({
         </div>
         <div className="text-center sm:text-right">
           <p className="text-5xl font-bold tabular-nums tracking-tight text-primary sm:text-6xl">
-            {score}
+            {score !== null ? score : "—"}
           </p>
           <p className="mt-1 text-sm text-muted-foreground">Team score / 100</p>
         </div>

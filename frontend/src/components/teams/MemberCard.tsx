@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 type MemberCardProps = {
   participant?: Participant;
   memberId: string;
-  assignedRole: RoleId;
+  assignedRole?: RoleId;
   className?: string;
 };
 
@@ -40,8 +40,15 @@ export function MemberCard({
           </Link>
           <p className="mt-1 text-xs text-muted-foreground">{memberId}</p>
         </div>
-        <span className="rounded-full border border-primary/20 bg-primary/5 px-2.5 py-1 text-xs font-medium text-primary">
-          {roleLabel(assignedRole)}
+        <span
+          className={cn(
+            "rounded-full border px-2.5 py-1 text-xs font-medium",
+            assignedRole
+              ? "border-primary/20 bg-primary/5 text-primary"
+              : "border-border bg-muted/40 text-muted-foreground",
+          )}
+        >
+          {assignedRole ? roleLabel(assignedRole) : "Unassigned"}
         </span>
       </div>
 
