@@ -1,7 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   createParticipant,
+  deleteParticipant,
   fetchParticipants,
+  updateParticipant,
 } from "@/api/participants-api";
 import type { Participant, ParticipantIn } from "@/api/types";
 
@@ -39,6 +41,36 @@ export function useCreateParticipant() {
       queryClient.setQueryData<Participant[]>(
         participantsQueryKey,
         (current) => (current ? [...current, created] : [created]),
+      );
+    },
+  });
+}
+
+export function useUpdateParticipant() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, body }: { id: string; body: ParticipantIn }) =>
+      updateParticipant(id, body),
+    onSuccess: (updated: Participant) => {
+      queryClient.setQueryData<Participant[]>(
+        participantsQueryKey,
+        (current) =>
+          current?.map((p) => (p.id === updated.id ? updated : p)),
+      );
+    },
+  });
+}
+
+export function useDeleteParticipant() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: string) => deleteParticipant(id),
+    onSuccess: (_data, deletedId) => {
+      queryClient.setQueryData<Participant[]>(
+        participantsQueryKey,
+        (current) => current?.filter((p) => p.id !== deletedId),
       );
     },
   });

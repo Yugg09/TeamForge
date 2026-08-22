@@ -86,6 +86,10 @@ export interface FormTeamsRequest {
   event_id?: string;
   min_size?: number;
   max_size?: number;
+  // Optional project requirements (Phase 2 — project-anchored forming)
+  required_roles?: RoleId[];
+  required_skills?: string[];
+  project_domain?: string;
 }
 
 export interface FormTeamsResponse {

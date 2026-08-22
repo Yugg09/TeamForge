@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { ArrowRightLeft, HelpCircle } from "lucide-react";
 import type { Participant, RoleId } from "@/api/types";
 import { ROLE_OPTIONS } from "@/lib/participant-constants";
 import { cn } from "@/lib/utils";
@@ -7,6 +8,9 @@ type MemberCardProps = {
   participant?: Participant;
   memberId: string;
   assignedRole?: RoleId;
+  teamId?: string;
+  onExplain?: (memberId: string, memberName: string) => void;
+  onMove?: (memberId: string, memberName: string) => void;
   className?: string;
 };
 
@@ -18,6 +22,9 @@ export function MemberCard({
   participant,
   memberId,
   assignedRole,
+  teamId,
+  onExplain,
+  onMove,
   className,
 }: MemberCardProps) {
   const name = participant?.name ?? memberId;
@@ -70,6 +77,40 @@ export function MemberCard({
             </li>
           ))}
         </ul>
+      ) : null}
+
+      {/* Action buttons */}
+      {teamId && (onExplain || onMove) ? (
+        <div className="mt-3 flex flex-wrap gap-2">
+          {onExplain ? (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                onExplain(memberId, name);
+              }}
+              className="inline-flex items-center gap-1 rounded-md border border-border bg-background px-2 py-1 text-xs font-medium text-muted-foreground hover:bg-accent hover:text-foreground"
+            >
+              <HelpCircle className="size-3" aria-hidden />
+              Why here?
+            </button>
+          ) : null}
+          {onMove ? (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                onMove(memberId, name);
+              }}
+              className="inline-flex items-center gap-1 rounded-md border border-border bg-background px-2 py-1 text-xs font-medium text-muted-foreground hover:bg-accent hover:text-foreground"
+            >
+              <ArrowRightLeft className="size-3" aria-hidden />
+              Move
+            </button>
+          ) : null}
+        </div>
       ) : null}
     </article>
   );

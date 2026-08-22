@@ -86,6 +86,10 @@ class FormTeamsRequest(BaseModel):
     event_id: str = "demo"
     min_size: int = 3
     max_size: int = 5
+    # Optional project requirements (Phase 2 — project-anchored forming)
+    required_roles: Optional[list[RoleId]] = None
+    required_skills: Optional[list[str]] = None
+    project_domain: Optional[str] = None
 
 
 class FormTeamsResponse(BaseModel):
@@ -106,3 +110,13 @@ class RebalanceResponse(BaseModel):
     suggested_replacement_id: Optional[str] = None
     score_before: float
     score_after: float
+
+
+class ProjectAnalyzeRequest(BaseModel):
+    description: str
+
+
+class ProjectAnalyzeResponse(BaseModel):
+    domain: str
+    required_skills: list[str]
+    roles: list[RoleId]

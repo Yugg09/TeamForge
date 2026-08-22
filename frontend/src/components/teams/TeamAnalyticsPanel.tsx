@@ -1,11 +1,19 @@
+import { useState } from "react";
 import type { Participant, Team } from "@/api/types";
+import { MemberExplanationPanel } from "@/components/teams/MemberExplanationPanel";
+import { MoveMemberModal } from "@/components/teams/MoveMemberModal";
+import { TeamActions } from "@/components/teams/TeamActions";
 import { RiskFlags } from "@/components/teams/RiskFlags";
 import { ScoreBreakdown } from "@/components/teams/ScoreBreakdown";
+import { SkillGapDashboard } from "@/components/teams/SkillGapDashboard";
 import { SkillRadar } from "@/components/teams/SkillRadar";
+import { TeamRecommendations } from "@/components/teams/TeamRecommendations";
+import { TeamExplanation } from "@/components/teams/TeamExplanation";
 import { TeamMemberContributions } from "@/components/teams/TeamMemberContributions";
 import { TeamScoreHero } from "@/components/teams/TeamScoreHero";
 import { WhyThisTeam } from "@/components/teams/WhyThisTeam";
-import { Link } from "react-router-dom";
+import { buildTeamInsights } from "@/lib/team-explain";
+import { Link } from "react-router-dom"
 
 type TeamAnalyticsPanelProps = {
   team: Team;
@@ -20,6 +28,8 @@ export function TeamAnalyticsPanel({
   fairnessOk,
   heroLabel = "Team analytics",
 }: TeamAnalyticsPanelProps) {
+  const [explainMember, setExplainMember] = useState<{ id: string; name: string } | null>(null);
+  const [moveMember, setMoveMember] = useState<{ id: string; name: string } | null>(null);
   const score = team.score;
 
   if (!score) {
@@ -38,16 +48,18 @@ export function TeamAnalyticsPanel({
         heroLabel={heroLabel}
       />
 
-      <div className="flex flex-wrap gap-3">
+      <div className="flex flex-wrap items-center gap-3">
         <Link
           to={`/rebalance/${team.id}`}
           className="inline-flex rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-95"
         >
           Open rebalancer
         </Link>
+        <TeamActions teamId={team.id} isLocked={false} />
       </div>
 
       <WhyThisTeam score={score} />
+      <TeamExplanation teamId={team.id} insights={buildTeamInsights(score)} />
 
       <div className="grid gap-6 lg:grid-cols-2">
         <SkillRadar team={team} />
@@ -66,7 +78,36 @@ export function TeamAnalyticsPanel({
 
       <ScoreBreakdown score={score} />
 
-      <TeamMemberContributions team={team} participants={participants} />
+      <SkillGapDashboard team={team} participants={participants} />
+
+      <TeamRecommendations teamId={team.id} />
+
+      <TeamMemberContributions
+        team={team}
+        participants={participants}
+        onExplainMember={(id, name) => setExplainMember({ id, name })}
+        onMoveMember={(id, name) => setMoveMember({ id, name })}
+      />
+
+      {/* Member explanation panel */}
+      {explainMember ? (
+        <MemberExplanationPanel
+          teamId={team.id}
+          memberId={explainMember.id}
+          memberName={explainMember.name}
+          onClose={() => setExplainMember(null)}
+        />
+      ) : null}
+
+      {/* Move member modal */}
+      {moveMember ? (
+        <MoveMemberModal
+          memberId={moveMember.id}
+          memberName={moveMember.name}
+          currentTeamId={team.id}
+          onClose={() => setMoveMember(null)}
+        />
+      ) : null}
     </div>
   );
 }

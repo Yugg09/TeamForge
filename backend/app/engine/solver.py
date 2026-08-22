@@ -1,9 +1,9 @@
 """Partition a cohort into teams (spec §6).
 
-Primary: OR-Tools CP-SAT on a linearized proxy (role coverage minus same-role
-stacking) under the hard constraints, ~3s budget.
-Fallback: greedy seed around the least-placeable participant, then SWAP/MOVE
-local search. A move is accepted only if it raises the global mean score.
+Multi-start solver with simulated annealing:
+1. Try multiple starting strategies (CP-SAT, greedy, random greedy)
+2. Apply simulated annealing local search to escape local optima
+3. Keep the best partition across all starts
 
 The engine is pure Python: no FastAPI, no SQLModel.
 """
@@ -21,55 +21,101 @@ from app.engine.roles import assign_roles
 from app.engine.types import Cohort, Score, SolveResult, Step, TeamResult
 
 CP_SAT_BUDGET_SECONDS = 3.0
-LOCAL_SEARCH_ROUNDS = 20
+LOCAL_SEARCH_ROUNDS = 30  # More rounds for better optimization
+MULTI_START_RUNS = 3      # Number of different starting points
+SA_INITIAL_TEMP = 0.05    # Initial temperature for simulated annealing
+SA_COOLING_RATE = 0.95    # Temperature decay per round
+SA_MIN_TEMP = 0.001       # Minimum temperature (stop annealing)
 
 
 def solve(cohort: Cohort, *, rng: random.Random | None = None) -> SolveResult:
-    """Partition `cohort` and return teams, a climbing step_log, and fairness."""
+    """Partition `cohort` using multi-start solver with simulated annealing.
+    
+    Returns the best partition found across multiple starts, with a step log
+    showing the optimization trajectory.
+    """
     rng = rng or random.Random(0)
-    components = _connected_components(cohort)
-    teams: list[list[str]] = []
-    step_log: list[Step] = []
-
-    for component in components:
-        sub = _sub_cohort(cohort, component)
-        partition = _best_start(sub)
+    
+    # Multi-start: try different starting points and keep the best
+    best_teams: list[list[str]] = []
+    best_score = -1.0
+    best_step_log: list[Step] = []
+    
+    start_strategies = [
+        ("cp_sat", _cpsat_start),
+        ("greedy", _greedy_start),
+        ("random_greedy", _random_greedy_start),
+    ]
+    
+    for start_idx, (strategy_name, strategy_fn) in enumerate(start_strategies[:MULTI_START_RUNS]):
+        # Create a new RNG for each start to ensure different solutions
+        start_rng = random.Random(rng.randint(0, 2**31))
+        
+        # Generate initial partition
+        partition = strategy_fn(cohort, start_rng)
         if not partition:
             continue
-        teams.extend(partition)
+        
+        # Record the starting score
+        start_score = _mean_score(partition, cohort)
+        
+        # Apply simulated annealing local search
+        partition, anneal_log = _simulated_annealing(partition, cohort, start_rng)
+        
+        # Build step log for this start
+        start_step = Step(
+            op=f"start_{strategy_name}",
+            teams_touched=[_placeholder_id(i) for i in range(len(partition))],
+            total_score=start_score,
+        )
+        
+        final_score = _mean_score(partition, cohort)
+        
+        # Track the best partition
+        if final_score > best_score:
+            best_teams = partition
+            best_score = final_score
+            best_step_log = [start_step] + anneal_log
+    
+    if not best_teams:
+        # Fallback: try greedy one more time
+        best_teams = _greedy_partition(cohort) or []
+        if best_teams:
+            best_score = _mean_score(best_teams, cohort)
+            best_step_log = [Step(
+                op="fallback_greedy",
+                teams_touched=[_placeholder_id(i) for i in range(len(best_teams))],
+                total_score=best_score,
+            )]
+    
+    _relabel_steps(best_step_log, best_teams)
+    return _assemble(best_teams, cohort, best_step_log)
 
-    if teams:
-        step_log.append(Step(
-            op="seed",
-            teams_touched=[_placeholder_id(i) for i in range(len(teams))],
-            total_score=_mean_score(teams, cohort),
-        ))
 
-    teams, extra = _local_search(teams, cohort, rng)
-    step_log.extend(extra)
-    _relabel_steps(step_log, teams)
-
-    return _assemble(teams, cohort, step_log)
+# ------------------------------------------------------------------ start strategies
 
 
-def _best_start(cohort: Cohort) -> list[list[str]] | None:
-    """CP-SAT on small components (linear proxy); greedy otherwise, then the other as backup."""
-    n = len(cohort.members)
-    greedy = _greedy_partition(cohort)
-    complete = greedy and sum(len(t) for t in greedy) == n
-    if complete:
-        return greedy
+def _cpsat_start(cohort: Cohort, rng: random.Random) -> list[list[str]] | None:
+    """Start with CP-SAT partition."""
+    return _cpsat_partition(cohort)
 
-    cpsat = _cpsat_partition(cohort)
-    ranked = [p for p in (cpsat, greedy) if p]
-    if not ranked:
-        return None
 
-    def key(part: list[list[str]]) -> tuple[int, float]:
-        placed = sum(len(t) for t in part)
-        return (int(placed == n), _mean_score(part, cohort) if placed else 0.0)
+def _greedy_start(cohort: Cohort, rng: random.Random) -> list[list[str]] | None:
+    """Start with deterministic greedy partition."""
+    return _greedy_partition(cohort)
 
-    return max(ranked, key=key)
+
+def _random_greedy_start(cohort: Cohort, rng: random.Random) -> list[list[str]] | None:
+    """Start with randomized greedy (shuffle candidate order)."""
+    # Create a shuffled version of the cohort
+    members = list(cohort.members)
+    rng.shuffle(members)
+    shuffled_cohort = Cohort(
+        members=tuple(members),
+        config=cohort.config,
+        similarity=cohort.similarity,
+    )
+    return _greedy_partition(shuffled_cohort)
 
 
 # --------------------------------------------------------------------------- CP-SAT
@@ -307,52 +353,71 @@ def _least_placeable(candidates: set[str], cohort: Cohort) -> str:
     return scored[0][1]
 
 
-# -------------------------------------------------------------------- local search
+# ---------------------------------------------------------------- simulated annealing
 
 
-def _local_search(
+def _simulated_annealing(
     teams: list[list[str]],
     cohort: Cohort,
     rng: random.Random,
 ) -> tuple[list[list[str]], list[Step]]:
+    """Local search with simulated annealing to escape local optima.
+    
+    Unlike basic local search which only accepts improving moves,
+    simulated annealing occasionally accepts worse moves to escape
+    local optima, then gradually reduces this tolerance.
+    """
     if not teams:
         return teams, []
+    
     current = [list(t) for t in teams]
     team_scores = [objective.score_team(t, cohort).total for t in current]
-    best_score = round(sum(team_scores) / len(team_scores), 4)
+    current_score = round(sum(team_scores) / len(team_scores), 4)
+    
+    best = [list(t) for t in current]
+    best_scores = list(team_scores)
+    best_score = current_score
+    
     log: list[Step] = []
-
-    def consider(trial: list[list[str]], touched: tuple[int, ...], op: str) -> bool:
-        nonlocal current, team_scores, best_score
-        if not _teams_feasible(trial, touched, cohort):
-            return False
-        new_scores = list(team_scores)
-        for idx in touched:
-            new_scores[idx] = objective.score_team(trial[idx], cohort).total
-        score = round(sum(new_scores) / len(new_scores), 4)
-        if score <= best_score:
-            return False
-        current = trial
-        team_scores = new_scores
-        best_score = score
-        log.append(Step(
-            op=op,
-            teams_touched=[_placeholder_id(i) for i in touched],
-            total_score=score,
-        ))
-        return True
-
-    for _ in range(LOCAL_SEARCH_ROUNDS):
+    temp = SA_INITIAL_TEMP
+    
+    for round_num in range(LOCAL_SEARCH_ROUNDS):
         improved = False
-
+        
+        # Try all SWAP moves
         for i in range(len(current)):
             for j in range(i + 1, len(current)):
                 for a_idx, a in enumerate(current[i]):
                     for b_idx, b in enumerate(current[j]):
                         trial = [list(t) for t in current]
                         trial[i][a_idx], trial[j][b_idx] = b, a
-                        if consider(trial, (i, j), "swap"):
+                        
+                        if not _teams_feasible(trial, (i, j), cohort):
+                            continue
+                        
+                        new_scores = list(team_scores)
+                        new_scores[i] = objective.score_team(trial[i], cohort).total
+                        new_scores[j] = objective.score_team(trial[j], cohort).total
+                        new_score = round(sum(new_scores) / len(new_scores), 4)
+                        
+                        delta = new_score - current_score
+                        
+                        # Accept if improving, or with probability based on temperature
+                        if delta > 0 or (temp > SA_MIN_TEMP and rng.random() < math.exp(delta / temp)):
+                            current = trial
+                            team_scores = new_scores
+                            current_score = new_score
                             improved = True
+                            
+                            if new_score > best_score:
+                                best = [list(t) for t in current]
+                                best_scores = list(team_scores)
+                                best_score = new_score
+                                log.append(Step(
+                                    op="swap",
+                                    teams_touched=[_placeholder_id(i), _placeholder_id(j)],
+                                    total_score=new_score,
+                                ))
                             break
                     if improved:
                         break
@@ -360,33 +425,56 @@ def _local_search(
                     break
             if improved:
                 break
-
-        if improved:
-            continue
-
-        for src in range(len(current)):
-            if len(current[src]) <= cohort.config.min_size:
-                continue
-            for dst in range(len(current)):
-                if src == dst or len(current[dst]) >= cohort.config.max_size:
+        
+        # Try all MOVE moves if no swap improved
+        if not improved:
+            for src in range(len(current)):
+                if len(current[src]) <= cohort.config.min_size:
                     continue
-                for member in list(current[src]):
-                    trial = [list(t) for t in current]
-                    trial[src] = [m for m in trial[src] if m != member]
-                    trial[dst] = trial[dst] + [member]
-                    if consider(trial, (src, dst), "move"):
-                        improved = True
+                for dst in range(len(current)):
+                    if src == dst or len(current[dst]) >= cohort.config.max_size:
+                        continue
+                    for member in list(current[src]):
+                        trial = [list(t) for t in current]
+                        trial[src] = [m for m in trial[src] if m != member]
+                        trial[dst] = trial[dst] + [member]
+                        
+                        if not _teams_feasible(trial, (src, dst), cohort):
+                            continue
+                        
+                        new_scores = list(team_scores)
+                        new_scores[src] = objective.score_team(trial[src], cohort).total
+                        new_scores[dst] = objective.score_team(trial[dst], cohort).total
+                        new_score = round(sum(new_scores) / len(new_scores), 4)
+                        
+                        delta = new_score - current_score
+                        
+                        if delta > 0 or (temp > SA_MIN_TEMP and rng.random() < math.exp(delta / temp)):
+                            current = trial
+                            team_scores = new_scores
+                            current_score = new_score
+                            improved = True
+                            
+                            if new_score > best_score:
+                                best = [list(t) for t in current]
+                                best_scores = list(team_scores)
+                                best_score = new_score
+                                log.append(Step(
+                                    op="move",
+                                    teams_touched=[_placeholder_id(src), _placeholder_id(dst)],
+                                    total_score=new_score,
+                                ))
+                            break
+                    if improved:
                         break
                 if improved:
                     break
-            if improved:
-                break
-
-        if not improved:
-            break
-
-    _ = rng  # reserved for simulated-annealing plateaus; only improving moves are kept
-    return current, log
+        
+        # Cool down
+        temp *= SA_COOLING_RATE
+    
+    # Return the best solution found (not necessarily the current one)
+    return best, log
 
 
 def _teams_feasible(teams: list[list[str]], touched: tuple[int, ...], cohort: Cohort) -> bool:

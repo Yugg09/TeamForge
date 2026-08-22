@@ -8,7 +8,7 @@ from fastapi.responses import JSONResponse
 
 from sqlmodel import Session
 
-from app.api import dev, form_teams, participants, rebalance
+from app.api import candidates, dev, explain, form_teams, member_explain, participants, projects, recommend, rebalance, team_adjust
 from app.config import settings
 from app.db import engine, init_db
 from app.seed import seed_database
@@ -50,6 +50,12 @@ async def unhandled_exception_handler(request: Request, exc: Exception) -> JSONR
 app.include_router(participants.router)
 app.include_router(form_teams.router)
 app.include_router(rebalance.router)
+app.include_router(explain.router)
+app.include_router(member_explain.router)
+app.include_router(recommend.router)
+app.include_router(team_adjust.router)
+app.include_router(candidates.router)
+app.include_router(projects.router)
 app.include_router(dev.router)
 
 

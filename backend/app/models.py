@@ -38,6 +38,16 @@ class TeamRow(SQLModel, table=True):
     role_assignments: dict[str, str] = Field(default_factory=dict, sa_column=Column(JSON))
     # The full TeamScore object (total, terms, penalties, flags) as contract JSON.
     score: dict[str, Any] = Field(default_factory=dict, sa_column=Column(JSON))
+    # Lock status: when locked, the optimizer won't move members in/out
+    locked: bool = Field(default=False)
+
+
+class PartitionStatusRow(SQLModel, table=True):
+    __tablename__ = "partition_status"
+
+    event_id: str = Field(primary_key=True, default="demo")
+    status: str = Field(default="pending")  # pending | accepted | rejected
+    locked_teams: list[str] = Field(default_factory=list, sa_column=Column(JSON))
 
 
 class StepLogRow(SQLModel, table=True):

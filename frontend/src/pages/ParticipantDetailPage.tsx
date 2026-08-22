@@ -1,5 +1,7 @@
+import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { ParticipantProfileView } from "@/components/participants/ParticipantProfileView";
+import { ParticipantProfileForm } from "@/components/participants/ParticipantProfileForm";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Button, buttonVariants } from "@/components/ui/button";
 import {
@@ -10,6 +12,7 @@ import { useParticipant } from "@/api/useParticipants";
 
 export function ParticipantDetailPage() {
   const { id } = useParams<{ id: string }>();
+  const [editing, setEditing] = useState(false);
   const {
     participant,
     isLoading,
@@ -61,7 +64,26 @@ export function ParticipantDetailPage() {
           </Link>
         </ErrorState>
       ) : participant ? (
-        <ParticipantProfileView participant={participant} />
+        editing ? (
+          <div className="space-y-6">
+            <ParticipantProfileForm
+              participant={participant}
+              onSuccess={() => setEditing(false)}
+            />
+            <button
+              type="button"
+              onClick={() => setEditing(false)}
+              className="text-sm font-medium text-primary underline-offset-4 hover:underline"
+            >
+              Cancel editing
+            </button>
+          </div>
+        ) : (
+          <ParticipantProfileView
+            participant={participant}
+            onEdit={() => setEditing(true)}
+          />
+        )
       ) : null}
     </section>
   );

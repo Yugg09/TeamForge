@@ -5,11 +5,15 @@ import { getMemberAssignment } from "@/lib/team-display";
 type TeamMemberContributionsProps = {
   team: Team;
   participants?: Participant[];
+  onExplainMember?: (memberId: string, memberName: string) => void;
+  onMoveMember?: (memberId: string, memberName: string) => void;
 };
 
 export function TeamMemberContributions({
   team,
   participants = [],
+  onExplainMember,
+  onMoveMember,
 }: TeamMemberContributionsProps) {
   const participantMap = new Map(participants.map((p) => [p.id, p]));
   const memberIds = team.member_ids ?? [];
@@ -40,6 +44,9 @@ export function TeamMemberContributions({
                 memberId={memberId}
                 assignedRole={assignedRole}
                 participant={participantMap.get(memberId)}
+                teamId={team.id}
+                onExplain={onExplainMember}
+                onMove={onMoveMember}
               />
             </li>
           );

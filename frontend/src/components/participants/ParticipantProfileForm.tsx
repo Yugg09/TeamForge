@@ -1,8 +1,8 @@
 import { useState, type FormEvent } from "react";
 import { Loader2 } from "lucide-react";
 import { ApiError } from "@/api/client";
-import { useCreateParticipant } from "@/api/useParticipants";
-import { Button } from "@/components/ui/button";
+import { useCreateParticipant, useUpdateParticipant } from "@/api/useParticipants";
+import type { Participant } from "@/api/types";
 import { AvailabilityEditor } from "@/components/participants/AvailabilityEditor";
 import { InterestsInput } from "@/components/participants/InterestsInput";
 import { RoleCheckboxGroup } from "@/components/participants/RoleCheckboxGroup";
@@ -19,6 +19,7 @@ import {
 import {
   EMPTY_PARTICIPANT_FORM,
   hasParticipantFormErrors,
+  participantToFormValues,
   type ParticipantFormErrors,
   type ParticipantFormValues,
   toParticipantIn,
@@ -26,17 +27,19 @@ import {
 } from "@/lib/participant-form";
 
 type ParticipantProfileFormProps = {
+  participant?: Participant;
   onSuccess?: (participantId: string) => void;
 };
 
-export function ParticipantProfileForm({ onSuccess }: ParticipantProfileFormProps) {
+export function ParticipantProfileForm({ participant, onSuccess }: ParticipantProfileFormProps) {
   const [values, setValues] = useState<ParticipantFormValues>(
-    EMPTY_PARTICIPANT_FORM,
+    participant ? participantToFormValues(participant) : EMPTY_PARTICIPANT_FORM,
   );
   const [errors, setErrors] = useState<ParticipantFormErrors>({});
   const [submitError, setSubmitError] = useState<string | null>(null);
 
   const createParticipant = useCreateParticipant();
+  const updateParticipant = useUpdateParticipant();
 
   const update = <K extends keyof ParticipantFormValues>(
     key: K,
@@ -57,15 +60,21 @@ export function ParticipantProfileForm({ onSuccess }: ParticipantProfileFormProp
     }
 
     try {
-      const created = await createParticipant.mutateAsync(toParticipantIn(values));
-      setValues(EMPTY_PARTICIPANT_FORM);
-      setErrors({});
-      onSuccess?.(created.id);
+      const body = toParticipantIn(values);
+      if (participant) {
+        const updated = await updateParticipant.mutateAsync({ id: participant.id, body });
+        onSuccess?.(updated.id);
+      } else {
+        const created = await createParticipant.mutateAsync(body);
+        setValues(EMPTY_PARTICIPANT_FORM);
+        setErrors({});
+        onSuccess?.(created.id);
+      }
     } catch (error) {
       if (error instanceof ApiError) {
         setSubmitError(error.message);
       } else {
-        setSubmitError("Failed to save participant. Please try again.");
+        setSubmitError(participant ? "Failed to update participant." : "Failed to add participant.");
       }
     }
   };
@@ -210,17 +219,32 @@ export function ParticipantProfileForm({ onSuccess }: ParticipantProfileFormProp
         </p>
       ) : null}
 
-      <div className="flex justify-end">
-        <Button type="submit" size="lg" disabled={createParticipant.isPending}>
-          {createParticipant.isPending ? (
+      <div className="flex justify-end gap-3">
+        {participant ? (
+          <button
+            type="button"
+            onClick={() => onSuccess?.(participant.id)}
+            className="rounded-lg border border-border bg-background px-5 py-2.5 text-sm font-medium text-muted-foreground hover:bg-accent"
+          >
+            Cancel
+          </button>
+        ) : null}
+        <button
+          type="submit"
+          disabled={createParticipant.isPending || updateParticipant.isPending}
+          className="inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-sm transition hover:opacity-95 disabled:opacity-60"
+        >
+          {createParticipant.isPending || updateParticipant.isPending ? (
             <>
               <Loader2 className="size-4 animate-spin" aria-hidden />
               Saving…
             </>
+          ) : participant ? (
+            "Save changes"
           ) : (
             "Add participant"
           )}
-        </Button>
+        </button>
       </div>
     </form>
   );

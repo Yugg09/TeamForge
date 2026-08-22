@@ -3,9 +3,8 @@ import { Link } from "react-router-dom";
 import { Sparkles } from "lucide-react";
 import { ScoreClimb } from "@/components/teams/ScoreClimb";
 import { TeamCard } from "@/components/teams/TeamCard";
+import { PartitionActions } from "@/components/teams/TeamActions";
 import { PageHeader } from "@/components/layout/PageHeader";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import {
   EmptyState,
   ErrorState,
@@ -14,7 +13,6 @@ import {
 import { useFormedTeams, useFormTeamsMutation } from "@/api/useFormTeams";
 import { useParticipants } from "@/api/useParticipants";
 import type { StepLogEntry } from "@/api/types";
-import { cn } from "@/lib/utils";
 
 export function TeamsPage() {
   const { data: response } = useFormedTeams();
@@ -46,13 +44,15 @@ export function TeamsPage() {
         title="Teams"
         description="Form balanced teams, watch the score climb, then explore each partition."
         actions={
-          <Button
+          <button
+            type="button"
             onClick={runFormTeams}
             disabled={formTeamsMutation.isPending}
+            className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-sm hover:opacity-95 disabled:opacity-60"
           >
             <Sparkles className="size-4" aria-hidden />
             {formTeamsMutation.isPending ? "Forming…" : "Form teams"}
-          </Button>
+          </button>
         }
       />
 
@@ -70,31 +70,32 @@ export function TeamsPage() {
           title="Could not form teams"
           description={formTeamsMutation.error?.message ?? "Unknown error"}
         >
-          <Button variant="secondary" size="sm" onClick={runFormTeams}>
+          <button
+            type="button"
+            onClick={runFormTeams}
+            className="rounded-md border border-border bg-background px-3 py-1.5 text-sm font-medium hover:bg-accent"
+          >
             Retry
-          </Button>
+          </button>
         </ErrorState>
       ) : teams.length === 0 ? (
         <EmptyState
           title="No teams formed yet"
           description="Run the optimizer to partition the cohort into balanced teams."
         >
-          <Button onClick={runFormTeams}>
+          <button
+            type="button"
+            onClick={runFormTeams}
+            className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground"
+          >
             <Sparkles className="size-4" aria-hidden />
             Form teams
-          </Button>
+          </button>
         </EmptyState>
       ) : (
         <div className="space-y-4">
           {response?.fairness_ok !== undefined ? (
-            <Card
-              className={cn(
-                "px-4 py-3",
-                response.fairness_ok
-                  ? "border-primary/25 bg-primary/5"
-                  : "border-destructive/25 bg-destructive/5",
-              )}
-            >
+            <div className="space-y-3">
               <p
                 className={
                   response.fairness_ok
@@ -102,10 +103,11 @@ export function TeamsPage() {
                     : "text-sm font-medium text-destructive"
                 }
               >
-                Fairness:{" "}
+                Fairness: {" "}
                 {response.fairness_ok ? "everyone placed" : "review placement"}
               </p>
-            </Card>
+              <PartitionActions />
+            </div>
           ) : null}
           <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {teams.map((team) => (

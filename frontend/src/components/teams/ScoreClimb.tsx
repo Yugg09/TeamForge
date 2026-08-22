@@ -7,7 +7,7 @@ import {
   YAxis,
 } from "recharts";
 import type { StepLogEntry } from "@/api/types";
-import { scoreToDisplay } from "@/lib/team-display";
+import { scoreToDisplay, stepOpLabel } from "@/lib/team-display";
 import { cn } from "@/lib/utils";
 
 type ScoreClimbProps = {
@@ -79,7 +79,7 @@ export function ScoreClimb({ stepLog, className, onComplete }: ScoreClimbProps) 
             Optimizing partition
           </p>
           <p className="mt-1 text-sm text-muted-foreground">
-            Score climb from seed → swap → move
+            Multi-start solver with simulated annealing
           </p>
         </div>
         <div className="text-right">
@@ -108,7 +108,7 @@ export function ScoreClimb({ stepLog, className, onComplete }: ScoreClimbProps) 
                 : "border-border bg-muted/40 text-muted-foreground",
             )}
           >
-            {entry.op} · {scoreToDisplay(entry.total_score)}
+            {stepOpLabel(entry.op)} · {scoreToDisplay(entry.total_score)}
           </li>
         ))}
       </ol>

@@ -68,8 +68,12 @@ def test_step_log_is_monotonically_non_decreasing():
     result = solve(cohort_of(people))
     assert result.step_log, "solver must emit a step_log the frontend can animate"
     scores = [step.total_score for step in result.step_log]
-    assert scores == sorted(scores)
-    assert all(step.op in {"seed", "swap", "move"} for step in result.step_log)
+    # Scores should be non-decreasing (each step improves or maintains the score)
+    for i in range(1, len(scores)):
+        assert scores[i] >= scores[i - 1], f"Score decreased at step {i}: {scores[i-1]} -> {scores[i]}"
+    # Valid operations: start strategies, swap, move
+    valid_ops = {"seed", "swap", "move", "start_cp_sat", "start_greedy", "start_random_greedy", "fallback_greedy"}
+    assert all(step.op in valid_ops for step in result.step_log)
 
 
 def _unique_role_member(team, cohort):

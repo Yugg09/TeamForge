@@ -17,3 +17,19 @@ export async function createParticipant(
     body: JSON.stringify(body),
   });
 }
+
+export async function updateParticipant(
+  id: string,
+  body: ParticipantIn,
+): Promise<Participant> {
+  return apiFetch<Participant>(`/api/participants/${id}`, {
+    method: "PUT",
+    body: JSON.stringify(body),
+  });
+}
+
+export async function deleteParticipant(id: string): Promise<void> {
+  return apiFetch<void>(`/api/participants/${id}`, {
+    method: "DELETE",
+  });
+}

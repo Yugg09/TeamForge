@@ -33,8 +33,8 @@ export function AppHeader() {
     return () => window.removeEventListener("resize", onResize);
   }, []);
 
-  const handleReset = () => {
-    resetDemo();
+  const handleReset = async () => {
+    await resetDemo();
     navigate("/");
     setMenuOpen(false);
   };

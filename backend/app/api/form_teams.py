@@ -28,11 +28,18 @@ def form_teams(
     if not people:
         raise HTTPException(status_code=400, detail="no participants for this event")
 
+    # Use project-specific required roles if provided, otherwise use defaults
+    required_roles = (
+        tuple(payload.required_roles)
+        if payload.required_roles
+        else tuple(settings.required_role_list)
+    )
+
     cohort = build_cohort(
         [p.model_dump() for p in people],
         min_size=payload.min_size,
         max_size=payload.max_size,
-        required_roles=tuple(settings.required_role_list),
+        required_roles=required_roles,
     )
     result = solve(cohort)
     persist_solve(session, payload.event_id, result)

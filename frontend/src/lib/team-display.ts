@@ -101,3 +101,18 @@ export const PENALTY_LABELS: Record<keyof TeamScore["penalties"], string> = {
   role_gaps: "Role gaps",
   availability_starvation: "Availability starvation",
 };
+
+// Labels for solver step operations
+export const STEP_OP_LABELS: Record<string, string> = {
+  seed: "seed",
+  swap: "swap",
+  move: "move",
+  start_cp_sat: "CP-SAT",
+  start_greedy: "greedy",
+  start_random_greedy: "random",
+  fallback_greedy: "fallback",
+};
+
+export function stepOpLabel(op: string): string {
+  return STEP_OP_LABELS[op] ?? op;
+}

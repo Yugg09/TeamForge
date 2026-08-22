@@ -18,6 +18,11 @@ class Settings(BaseSettings):
     cors_origins: str = "http://localhost:3000,http://localhost:5173"
     embedding_model: str = "all-MiniLM-L6-v2"
 
+    # LLM settings for bio parsing and explanations
+    llm_api_key: str = ""
+    llm_model: str = "meta-llama/llama-3.1-8b-instruct:free"
+    llm_base_url: str = "https://openrouter.ai/api/v1"
+
     # Required roles for the demo event; a project brief may override.
     required_roles: str = "frontend,backend,ai_ml,design"
 
